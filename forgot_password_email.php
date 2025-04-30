@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            $mail->setFrom('chiashuxuan76@gmail.com', 'Reset password link');
+            $mail->setFrom('Your-Gmail@gmail.com', 'Reset password link');
             $mail->addAddress($email);
 
             $mail->isHTML(true);
