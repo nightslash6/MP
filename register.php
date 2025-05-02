@@ -1,7 +1,8 @@
 <?php
-/*session_start();
+session_start();
+session_regenerate_id(true);
+
 require 'config.php';
-session_regenerate_id(true);*/
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = htmlspecialchars(trim($_POST['name']));
