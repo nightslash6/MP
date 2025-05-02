@@ -1,7 +1,8 @@
 <?php
-/*session_start();
+session_start();
+session_regenerate_id(true);
+
 require 'config.php';
-session_regenerate_id(true);*/
 
 function login_user($email, $password) {
     $conn = db_connect();

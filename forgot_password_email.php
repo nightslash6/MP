@@ -1,7 +1,7 @@
 <?php
-/* figure out CSRF token
 session_start();
-require 'config.php'; (need to create)
+require 'config.php';
+/* figure out CSRF token
 require 'csrf.php'; (need to create)*/
 
 // Load PHPMailer
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 
     $conn = db_connect();
     // Check if email exists in the database
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?"); //select name? any others?
+    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?"); 
     $stmt->bind_param("s", $email);
     $stmt->execute();
      $result = $stmt->store_result();

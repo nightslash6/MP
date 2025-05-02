@@ -3,7 +3,7 @@ function db_connect() {
     $servername = "localhost";
     $username = "root";
     $password = "";     
-    $dbname = ""; 
+    $dbname = "robotics_system"; 
 
     $conn = mysqli_connect($servername, $username, $password, $dbname);
 
