@@ -8,9 +8,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = htmlspecialchars(trim($_POST['name']));
     $email = htmlspecialchars(trim($_POST['email']));
     $password = htmlspecialchars(trim($_POST['password']));
-    $role = htmlspecialchars(trim($_POST['role'])); //remove
 
-    if(empty($name) || empty($password) || empty($role)){ //remove role
+    if(empty($name) || empty($password)){ 
         echo "<script>alert('All fields are required'); window.location.href = 'register.php';</script>";
     }elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
         echo "<script>alert('Invalid email format.');</script>"; //need window.location.href? (test)
@@ -18,7 +17,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)"); //remove role
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?, ?)"); 
         $stmt->bind_param("ssss", $name, $email, $hashedPassword, $role);
 
         if($stmt->execute()){
