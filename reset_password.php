@@ -130,7 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         <h1>Reset Password</h1>
         <form action="" method="post">
             <div class="form-group">
-                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_GET['user_id'] ?? ''); ?>">
+                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_GET['user_id'] ?? ''); ?>"> <!--???-->
+                <label for="old_password">Current Password:</label><br> <!--for verification-->
+                <input type="old_password" name="old_password" id="old_password" required><br>
                 <label for="password">New Password:</label><br>
                 <input type="password" name="password" id="password" required><br>
                 <label for="confirm_password">Confirm Password:</label><br>

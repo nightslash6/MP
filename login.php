@@ -14,32 +14,25 @@ function login_user($email, $password) {
     }
 
     // Fetch user data from the database
-    $stmt = $conn->prepare("SELECT user_id, name, password, role FROM users WHERE email = ?"); //can remove role
+    $stmt = $conn->prepare("SELECT user_id, name, password FROM users WHERE email = ?"); 
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result(); // Store the result to check the number of rows
 
     // Check if a user was found
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $name, $hashed_password, $role);
+        $stmt->bind_result($user_id, $name, $hashed_password);
         $stmt->fetch();
 
         if (password_verify($password, $hashed_password)) { //USE PASSWORD HASH AND PASSWORD VERIFY FOR SECURITY
             $_SESSION['user_id'] = $user_id;
             $_SESSION['name'] = $name;
-            $_SESSION['role'] = $role;
             $_SESSION['email'] = $email;
 
             $stmt->close();
             $conn->close();
 
-            if($role === 'student') {
-                header("Location: main.php");
-            } elseif ($role === 'admin' || $role === 'faculty') {
-                header("Location: CRUD2_group_login/home_AdmFac.php"); //remove
-            } else {
-                echo "<script>alert('Unknown'); window.location.href = 'login.php';</script>";
-            }
+            header("Location: main.php");
             exit();
         } else {
             echo "<script>alert('Invalid email or password'); window.location.href = 'login.php';</script>";

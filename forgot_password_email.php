@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         /*$token = bin2hex(random_bytes(50)); // Generate a secure token
         $stmt->bind_result($user_id);
         $stmt->fetch();*/
-        $user = $result->fetch_assoc();
+        //$user = $result->fetch_assoc();
         
         /* // Store token in database
         $expiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
@@ -53,12 +53,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
             $mail->SMTPAuth = true;
-            $mail->Username = 'chiashuxuan76@gmail.com'; // My Gmail
-            $mail->Password = 'juod eqrr mpup lzqk'; // Gmail app password
+            $mail->Username = 'xxxxx@gmail.com'; // My Gmail
+            $mail->Password = 'xxxxxx'; // Gmail app password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            $mail->setFrom('chiashuxuan76@gmail.com', 'Reset password link');
+            $mail->setFrom('my-gmail@gmail.com', 'Reset password link');
             $mail->addAddress($email);
 
             $mail->isHTML(true);
