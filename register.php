@@ -17,8 +17,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?, ?)"); 
-        $stmt->bind_param("ssss", $name, $email, $hashedPassword, $role);
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?,)"); 
+        $stmt->bind_param("ssss", $name, $email, $hashedPassword,);
 
         if($stmt->execute()){
             echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
