@@ -19,7 +19,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
         $conn = db_connect();
         $stmt = $conn->prepare("INSERT INTO users (name, email, phone, hashedpassword) VALUES (?, ?, ?, ?)"); 
-        $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
+        $stmt->bind_param("ssis", $name, $email, $phone, $hashedpassword,);
 
         if($stmt->execute()){
             echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
