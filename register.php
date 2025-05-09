@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $hashedpassword = password_hash($password, PASSWORD_BCRYPT);
 
         $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, phone, hashedpassword) VALUES (?, ?, ?, ?)"); 
+        $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
         $stmt->bind_param("ssis", $name, $email, $phone, $hashedpassword,);
 
         if($stmt->execute()){

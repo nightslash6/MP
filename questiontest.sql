@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`Name`, `Email`, `PhoneNumber`, `PasswordHash`) 
+INSERT INTO `users` (`mame`, `email`, `phone_number`, `password_hash`) 
 VALUES 
 ('Student', 'student@gmail.com', '99992222', 'passwordhash');
 
