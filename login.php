@@ -15,17 +15,17 @@ function login_user($email, $password) {
     }
 
     // Fetch user data from the database
-    $stmt = $conn->prepare("SELECT user_id, name, password FROM users WHERE email = ?"); 
+    $stmt = $conn->prepare("SELECT user_id, name,  password_hash FROM users WHERE email = ?"); 
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result(); // Store the result to check the number of rows
 
     // Check if a user was found
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $name, $hashed_password);
+        $stmt->bind_result($user_id, $name, $password_hash);
         $stmt->fetch();
 
-        if (password_verify($password, $hashed_password)) { //USE PASSWORD HASH AND PASSWORD VERIFY FOR SECURITY
+        if (password_verify($password, $password_hash)) { //USE PASSWORD HASH AND PASSWORD VERIFY FOR SECURITY
             $_SESSION['user_id'] = $user_id;
             $_SESSION['name'] = $name;
             $_SESSION['email'] = $email;
@@ -53,7 +53,7 @@ function login_user($email, $password) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     // Retrieve and sanitize the email and password
     $email = htmlspecialchars(trim($_POST['email']));
-    $password = trim($_POST['password']); // Password does not need htmlspecialchars
+    $password = trim($_POST['password']); // Password does not need htmlspecialchars 
 
     // Call the login function
     login_user($email, $password);
