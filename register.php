@@ -10,16 +10,49 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
-    if(empty($name) || empty($password)){ 
+    $conn = db_connect();
+    $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
+    $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
+
+    //Check for duplicate name
+    $CheckDupName=$conn->prepare("SELECT user_id FROM users WHERE name= ?");
+    $CheckDupName->bind_param("s", $name);
+    $CheckDupName->execute();
+    $CheckDupName->store_result();
+
+    //Check for duplicate email
+    $CheckDupEmail=$conn->prepare("SELECT user_id FROM users WHERE email = ?");
+    $CheckDupEmail->bind_param("s", $email);
+    $CheckDupEmail->execute();
+    $CheckDupEmail->store_result();
+
+    //Check for duplicate phone number
+    $CheckDupPhone=$conn->prepare("SELECT user_id FROM users WHERE phone_number = ?");
+    $CheckDupPhone->bind_param("s", $phone);
+    $CheckDupPhone->execute();
+    $CheckDupPhone->store_result();
+
+    if(empty($name) || empty($password) || empty($email) || empty($phone)){ 
         echo "<script>alert('All fields are required'); window.location.href = 'register.php';</script>";
-    }elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+    }
+    elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
         echo "<script>alert('Invalid email format.');</script>"; //need window.location.href? (test)
-    }else{
+    }
+    elseif($CheckDupEmail->num_rows > 0){
+        echo "<script>alert('Email already registered'); window.location.href = 'register.php';</script>";
+    }
+    elseif($CheckDupPhone->num_rows > 0){
+        echo "<script>alert('Phone number already registered'); window.location.href = 'register.php';</script>";
+    }
+    elseif($CheckDupName->num_rows > 0){
+        echo "<script>alert('Username already registered'); window.location.href = 'register.php';</script>";
+    }
+    elseif(!is_numeric($phone)){
+        echo "<script>alert('Phone number should be digits only.'); window.location.href = 'register.php';</script>"; //allow digits only
+    }
+    else{
         $hashedpassword = password_hash($password, PASSWORD_BCRYPT);
 
-        $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
-        $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
 
         if($stmt->execute()){
             echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
@@ -138,11 +171,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 <label for="name">Username:</label>
                 <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="100" required>
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="200" required>
+                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="100" required>
                  <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="255" required>
+                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="9" required>
                 <label for="password">Password:</label>
-                <input type="text" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
+                <input type="password" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
                 <button type="submit" name="action" value="create">Register</button>
             </div>
         </form>
