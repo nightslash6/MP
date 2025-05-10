@@ -5,11 +5,11 @@ session_regenerate_id(true);
 require 'config.php';
 
 $errors = [
-    'name' => ' ',
-    'email' => ' ',
-    'phone' => ' ',
-    'password' => ' ',
-    'general' => ' '
+    'name' => '',
+    'email' => '',
+    'phone' => '',
+    'password' => '',
+    'general' => ''
 ];
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
@@ -131,7 +131,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             color: #000;
         }
 
-        input, select{
+        input{
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -187,24 +187,24 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         <h1>Create an Account</h1>
 
          <?php if(!empty($errors['general'])): ?>
-            <div class="general-error"><?php echo $errors['general']; ?></div>
+            <div class="error"><?php echo $errors['general']; ?></div>
         <?php endif; ?>
 
         <form action="" method="POST">
             <div class="form-group">
                 <label for="name">Username:</label>
-                <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="100" value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>" required>
+                <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="255" value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>" required>
                 <?php if(!empty($errors['name'])): ?>
                     <span class="error"><?php echo $errors['name']; ?></span>
                 <?php endif; ?>
 
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="100" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
+                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="255" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
                 <?php if(!empty($errors['email'])): ?>
                     <span class="error"><?php echo $errors['email']; ?></span>
                 <?php endif; ?>
 
-                 <label for="phone">Phone Number:</label>
+                <label for="phone">Phone Number:</label>
                 <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="8" value="<?php echo isset($phone) ? htmlspecialchars($phone) : ''; ?>" required>
                 <?php if(!empty($errors['phone'])): ?>
                     <span class="error"><?php echo $errors['phone']; ?></span>
@@ -219,6 +219,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 <button type="submit" name="action" value="create">Register</button>
             </div>
         </form>
+
         <div class="links">
             <p>Already have an account? <a href="login.php">Login here</a></p>
         </div>
