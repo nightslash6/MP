@@ -23,11 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         $stmt->bind_param("si", $hashed_password, $user_id);
         $stmt->execute();
 
-        header("Location: login.php?reset=success");
-        $stmt->close();
-        $conn->close();
-        exit();
-    } 
+        if ($stmt->affected_rows === 1) {
+            header("Location: login.php?reset=success");
+            exit();
+        }else{
+            $errors['password'] = 'Failed to update password. Please try again.';
+        }
+    }
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
@@ -92,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             border-radius: 5px;
             font-size: 14px;
             margin-top: 5px;
-             margin-bottom: 15px;
+            margin-bottom: 15px;
         }
 
         button {
@@ -142,8 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
 
         <form action="" method="post">
             <div class="form-group">
-                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_GET['user_id'] ?? ''); ?>">
-
                 <label for="password">New Password:</label><br>
                 <input type="password" name="password" id="password" required><br>
 
@@ -153,12 +155,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                     <div class="error"><?php echo $errors['password']; ?></div>
                 <?php endif; ?>
             </div>
-
             <button type="submit" name="submit">Reset Password</button>
         </form>
+
         <div class="links">
             <p><a href="login.php">Login here</a></p>
         </div>
+
     </div>
 </body>
 </html>
