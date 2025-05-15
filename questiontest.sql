@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` VARCHAR(255) UNIQUE NOT NULL,
   `phone_number` VARCHAR(8) UNIQUE NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
+  `reset_token` VARCHAR(255) NULL,
+  `reset_token_expiration` DATETIME NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
