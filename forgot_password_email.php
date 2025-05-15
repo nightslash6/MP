@@ -23,70 +23,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 */
 
+$notification = ['email' => ''];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     $email = trim($_POST['email']); //sanitize user input
 
-    $conn = db_connect();
-    // Check if email exists in the database
-    $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?"); 
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-     $result = $stmt->store_result();
-
-    if ($result->num_rows === 1) {
-        /*$token = bin2hex(random_bytes(50)); // Generate a secure token
-        $stmt->bind_result($user_id);
-        $stmt->fetch();*/
-        //$user = $result->fetch_assoc();
-        
-        /* // Store token in database
-        $expiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
-        $stmt = $conn->prepare("UPDATE users SET reset_token=?, reset_token_expiration=? WHERE user_id=?");
-        $stmt->bind_param("ssi", $token, $expiry, $user_id);
-        $stmt->execute();*/
-
-        // Build the reset link
-        $resetLink = "http://localhost/MajorProject/reset_password.php" /*?token=" . urlencode($resetToken)*/;
-        // Send email
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
-            $mail->SMTPAuth = true;
-            $mail->Username = 'xxxxx@gmail.com'; // My Gmail
-            $mail->Password = 'xxxxxx'; // Gmail app password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('my-gmail@gmail.com', 'Reset password link');
-            $mail->addAddress($email);
-
-            $mail->isHTML(true);
-            $mail->Subject = 'Password Reset Request';
-            $mail->Body = "
-                        <h1>Password Reset Request</h1>
-                        <p>Hi " . htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') . ",</p>
-                        <p>Click the link below to reset your password:</p>
-                        <p><a href='$resetLink'>$resetLink</a></p>
-                        <p>This link will expire in 1 hour.</p>";
-                    $mail->AltBody = "Use the following link to reset your password: $resetLink";
-
-                    $mail->send();
-                    echo "<script>alert('Email sent successfully!')</script>";
-                    exit();
-                } catch (Exception $e) {
-                    echo "Email could not be sent. Mailer Error: {$mail->ErrorInfo}";
-                }
-                $stmt->close();
-                $conn->close();
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $notification['email'] = 'Invalid email format.';
     } else {
-        echo "<script>alert('Email not found!'); window.location.href = 'forgot_password_email.php';</script>";
-    }
-} 
+        $conn = db_connect();
+        // Check if email exists in the database
+        $stmt = $conn->prepare("SELECT user_id, name FROM users WHERE email = ?"); 
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['submit'])){ //if input is blank
-    echo "<script>alert('Enter email')</script>"; //doesn't work
-    exit();
+        if ($stmt->num_rows === 1) {
+            $stmt->bind_result($user_id, $name);
+            $stmt->fetch();
+            /*$token = bin2hex(random_bytes(50)); // Generate a secure token
+            $stmt->bind_result($user_id);
+            $stmt->fetch();*/
+            //$user = $result->fetch_assoc();
+            
+            /* // Store token in database
+            $expiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
+            $stmt = $conn->prepare("UPDATE users SET reset_token=?, reset_token_expiration=? WHERE user_id=?");
+            $stmt->bind_param("ssi", $token, $expiry, $user_id);
+            $stmt->execute();*/
+
+            // Build the reset link
+            $resetLink = "http://localhost/MajorProject/MP/reset_password.php" /*?token=" . urlencode($resetToken)*/;
+            // Send email
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = 'xxx@gmail.com'; // My Gmail
+                $mail->Password = 'xxx'; // Gmail app password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                $mail->setFrom('my-gmail@gmail.com', 'Reset password link');
+                $mail->addAddress($email);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Password Reset Request';
+                $mail->Body = "
+                            <h1>Password Reset Request</h1>
+                            <p>Hi <?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>,</p>
+                            <p>Click the link below to reset your password:</p>
+                            <p><a href='$resetLink'>$resetLink</a></p>
+                            <p>This link will expire in 1 hour.</p>";
+                        $mail->AltBody = "Use the following link to reset your password: $resetLink";
+
+                        $mail->send();
+                            $notification['email'] = 'Email sent successfully!';
+                    } catch (Exception $e) {
+                        $notification['email'] = 'Email could not be sent. Error: '. $mail->ErrorInfo;
+                    }
+                    $stmt->close();
+                    $conn->close();
+        } else {
+            $notification['email'] = 'Email not found.';
+        }
+    }
 }
 ?>
 
@@ -151,6 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['submit'])){ //if inpu
             border-radius: 5px;
             font-size: 14px;
             margin-top: 5px;
+            margin-bottom: 15px;
         }
 
         button {
@@ -184,21 +187,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['submit'])){ //if inpu
         .links a:hover {
             text-decoration: underline;
         }
+
+         .notification {
+            color: #e3090c;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="forgotpassword-container">
         <h1>Forgot Password?</h1>
+
         <form action="" method="POST">
             <div class="form-group">
                 <label for="email">Enter your email address:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" required>
+                <input type="text" id="email" name="email" placeholder="Enter your email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
+                <?php if(!empty($notification['email'])): ?>
+                    <div class="notification"><?php echo $notification['email']; ?></div>
+                <?php endif; ?>
             </div>
-            <button type="submit">Send reset link</button>
+            <button type="submit" name="submit">Send reset link</button>
         </form>
+
         <div class="links">
             <p><a href="login.php">Login here</a></p>
         </div>
+
     </div>
 </body>
 </html>
