@@ -1,5 +1,7 @@
 <?php
 session_start();
+session_regenerate_id(true);
+
 require 'config.php';
 /* figure out CSRF token
 require 'csrf.php'; (need to create)*/
