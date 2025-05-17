@@ -7,6 +7,7 @@ require 'config.php';
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = htmlspecialchars(trim($_POST['name']));
     $email = htmlspecialchars(trim($_POST['email']));
+    $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
     if(empty($name) || empty($password)){ 
@@ -14,11 +15,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
         echo "<script>alert('Invalid email format.');</script>"; //need window.location.href? (test)
     }else{
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $hashedpassword = password_hash($password, PASSWORD_BCRYPT);
 
         $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?,)"); 
-        $stmt->bind_param("ssss", $name, $email, $hashedPassword,);
+        $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
+        $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
 
         if($stmt->execute()){
             echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
@@ -138,6 +139,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="100" required>
                 <label for="email">Email:</label>
                 <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="200" required>
+                 <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="255" required>
                 <label for="password">Password:</label>
                 <input type="text" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
                 <button type="submit" name="action" value="create">Register</button>
