@@ -1,29 +1,35 @@
 <?php
-/*session_start();
-session_regenerate_id()
-require 'config.php'*/
+session_start();
+session_regenerate_id(true);
 
-//test 
+require 'config.php';
+
+//test
+
+$errors = ['password' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     $password = trim($_POST['password']);
     $confirm_password = trim($_POST['confirm_password']);
 
     if ($password !== $confirm_password) {
-        echo "<script>alert('Passwords do not match.'); window.location.href = 'reset_password.php? ';</script>";
+        $errors['password'] = 'Passwords do not match';
     } else {
         $conn = db_connect();
 
         // Update the password
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
+        $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
         $stmt->bind_param("si", $hashed_password, $user_id);
         $stmt->execute();
 
-        header("Location: login.php?reset=success");
-        exit();
-    } 
-
+        if ($stmt->affected_rows === 1) {
+            header("Location: login.php?reset=success");
+            exit();
+        }else{
+            $errors['password'] = 'Failed to update password. Please try again.';
+        }
+    }
     $stmt->close();
     $conn->close();
 }
@@ -90,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             border-radius: 5px;
             font-size: 14px;
             margin-top: 5px;
+            margin-bottom: 15px;
         }
 
         button {
@@ -123,26 +130,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         .links a:hover {
             text-decoration: underline;
         }
+
+        .error {
+            color: #e3090c;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="resetpassword-container">
         <h1>Reset Password</h1>
+
         <form action="" method="post">
             <div class="form-group">
-                <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($_GET['user_id'] ?? ''); ?>"> <!--???-->
-                <label for="old_password">Current Password:</label><br> <!--for verification-->
-                <input type="old_password" name="old_password" id="old_password" required><br>
                 <label for="password">New Password:</label><br>
                 <input type="password" name="password" id="password" required><br>
+
                 <label for="confirm_password">Confirm Password:</label><br>
                 <input type="password" name="confirm_password" id="confirm_password" required><br>
+                 <?php if(!empty($errors['password'])): ?>
+                    <div class="error"><?php echo $errors['password']; ?></div>
+                <?php endif; ?>
             </div>
             <button type="submit" name="submit">Reset Password</button>
         </form>
+
         <div class="links">
             <p><a href="login.php">Login here</a></p>
         </div>
+
     </div>
 </body>
 </html>
