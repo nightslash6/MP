@@ -18,52 +18,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
-    $conn = db_connect();
-    $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
-    $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
+    if(empty($name) || empty($password)){ 
+        echo "<script>alert('All fields are required'); window.location.href = 'register.php';</script>";
+    }elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        echo "<script>alert('Invalid email format.');</script>"; //need window.location.href? (test)
+    }else{
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-    //Check for duplicate name
-    $CheckDupName=$conn->prepare("SELECT user_id FROM users WHERE name= ?");
-    $CheckDupName->bind_param("s", $name);
-    $CheckDupName->execute();
-    $CheckDupName->store_result();
+        $conn = db_connect();
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?,)"); 
+        $stmt->bind_param("ssss", $name, $email, $hashedPassword,);
 
-    //Check for duplicate email
-    $CheckDupEmail=$conn->prepare("SELECT user_id FROM users WHERE email = ?");
-    $CheckDupEmail->bind_param("s", $email);
-    $CheckDupEmail->execute();
-    $CheckDupEmail->store_result();
-
-    //Check for duplicate phone number
-    $CheckDupPhone=$conn->prepare("SELECT user_id FROM users WHERE phone_number = ?");
-    $CheckDupPhone->bind_param("s", $phone);
-    $CheckDupPhone->execute();
-    $CheckDupPhone->store_result();
-
-    if (empty($name)) $errors['name'] = 'Username is required';
-    if (empty($email)) $errors['email'] = 'Email is required';
-    if (empty($phone)) $errors['phone'] = 'Phone Number is required';
-    if (empty($password)) $errors['password'] = 'Password is required';
-
-    if($CheckDupName->num_rows > 0){
-       $errors['name'] = 'Username already taken';
-    }
-   if(!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)){
-        $errors['email'] = 'Invalid email format';
-    } 
-    if($CheckDupEmail->num_rows > 0){
-        $errors['email'] = 'Email already registered';
-    }
-    if($CheckDupPhone->num_rows > 0){
-       $errors['phone'] = 'Phone number already registered';
-    }
-    if(!empty($phone) && !is_numeric($phone)){
-        $errors['phone'] = 'Phone number should be digits only';
-    }
-
-    if(empty(array_filter($errors))){
-        $hashedpassword = password_hash($password, PASSWORD_BCRYPT);
-    
         if($stmt->execute()){
             header("Location: login.php?registration=success");
             exit();
@@ -199,17 +164,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                 <?php endif; ?>
 
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="255" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
-                <?php if(!empty($errors['email'])): ?>
-                    <span class="error"><?php echo $errors['email']; ?></span>
-                <?php endif; ?>
-
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="8" value="<?php echo isset($phone) ? htmlspecialchars($phone) : ''; ?>" required>
-                <?php if(!empty($errors['phone'])): ?>
-                    <span class="error"><?php echo $errors['phone']; ?></span>
-                <?php endif; ?>
-                
+                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="200" required>
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
                 <?php if(!empty($errors['password'])): ?>
