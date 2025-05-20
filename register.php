@@ -4,27 +4,71 @@ session_regenerate_id(true);
 
 require 'config.php';
 
+$errors = [
+    'name' => '',
+    'email' => '',
+    'phone' => '',
+    'password' => '',
+    'general' => ''
+];
+
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $name = htmlspecialchars(trim($_POST['name']));
     $email = htmlspecialchars(trim($_POST['email']));
     $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
-    if(empty($name) || empty($password)){ 
-        echo "<script>alert('All fields are required'); window.location.href = 'register.php';</script>";
-    }elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-        echo "<script>alert('Invalid email format.');</script>"; //need window.location.href? (test)
-    }else{
+    $conn = db_connect();
+    $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
+    $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
+
+     //Check for duplicate name
+    $CheckDupName=$conn->prepare("SELECT user_id FROM users WHERE name= ?");
+    $CheckDupName->bind_param("s", $name);
+    $CheckDupName->execute();
+    $CheckDupName->store_result();
+
+    //Check for duplicate email
+    $CheckDupEmail=$conn->prepare("SELECT user_id FROM users WHERE email = ?");
+    $CheckDupEmail->bind_param("s", $email);
+    $CheckDupEmail->execute();
+    $CheckDupEmail->store_result();
+
+    //Check for duplicate phone number
+    $CheckDupPhone=$conn->prepare("SELECT user_id FROM users WHERE phone_number = ?");
+    $CheckDupPhone->bind_param("s", $phone);
+    $CheckDupPhone->execute();
+    $CheckDupPhone->store_result();
+
+    if (empty($name)) $errors['name'] = 'Username is required';
+    if (empty($email)) $errors['email'] = 'Email is required';
+    if (empty($phone)) $errors['phone'] = 'Phone Number is required';
+    if (empty($password)) $errors['password'] = 'Password is required';
+
+    if($CheckDupName->num_rows > 0){
+       $errors['name'] = 'Username already taken';
+    }
+   if(!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)){
+        $errors['email'] = 'Invalid email format';
+    } 
+    if($CheckDupEmail->num_rows > 0){
+        $errors['email'] = 'Email already registered';
+    }
+    if($CheckDupPhone->num_rows > 0){
+       $errors['phone'] = 'Phone number already registered';
+    }
+    if(!empty($phone) && !is_numeric($phone)){
+        $errors['phone'] = 'Phone number should be digits only';
+    }
+
+    if(empty(array_filter($errors))){
         $hashedpassword = password_hash($password, PASSWORD_BCRYPT);
 
-        $conn = db_connect();
-        $stmt = $conn->prepare("INSERT INTO users (name, email, phone, hashedpassword) VALUES (?, ?, ?, ?)"); 
-        $stmt->bind_param("ssis", $name, $email, $phone, $hashedpassword,);
-
         if($stmt->execute()){
-            echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
+            header("Location: login.php?registration=success");
+            exit();
         }else{
-            echo "<script>alert('Error: " . $stmt->error . "';</script>";
+            $errors['general'] = 'Error: ' . $stmt->error;
         }
 
         $stmt->close();
@@ -87,7 +131,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             color: #000;
         }
 
-        input, select{
+        input{
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -128,24 +172,54 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         .links a:hover {
             text-decoration: underline;
         }
+
+        .error {
+            color: #e3090c;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="register-container">
         <h1>Create an Account</h1>
+
+         <?php if(!empty($errors['general'])): ?>
+            <div class="error"><?php echo $errors['general']; ?></div>
+        <?php endif; ?>
+
         <form action="" method="POST">
             <div class="form-group">
                 <label for="name">Username:</label>
-                <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="100" required>
+                <input type="text" id="name" name="name" placeholder="Enter your username" maxlength="255" value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>" required>
+                <?php if(!empty($errors['name'])): ?>
+                    <span class="error"><?php echo $errors['name']; ?></span>
+                <?php endif; ?>
+
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="200" required>
-                 <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="255" required>
+                                <input type="text" id="email" name="email" placeholder="Enter your email" maxlength="255" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
+                <?php if(!empty($errors['email'])): ?>
+                    <span class="error"><?php echo $errors['email']; ?></span>
+                <?php endif; ?>
+
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter your phone number" maxlength="8" value="<?php echo isset($phone) ? htmlspecialchars($phone) : ''; ?>" required>
+                <?php if(!empty($errors['phone'])): ?>
+                    <span class="error"><?php echo $errors['phone']; ?></span>
+                <?php endif; ?>
+
                 <label for="password">Password:</label>
-                <input type="text" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
+                <input type="password" id="password" name="password" placeholder="Enter your password" maxlength="255" required>
+                <?php if(!empty($errors['password'])): ?>
+                    <span class="error"><?php echo $errors['password']; ?></span>
+                <?php endif; ?>
+
                 <button type="submit" name="action" value="create">Register</button>
             </div>
         </form>
+
         <div class="links">
             <p>Already have an account? <a href="login.php">Login here</a></p>
         </div>

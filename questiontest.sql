@@ -13,10 +13,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` VARCHAR(255) UNIQUE NOT NULL,
   `phone_number` VARCHAR(8) UNIQUE NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
+  `reset_token` VARCHAR(255) NULL,
+  `reset_token_expiration` DATETIME NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`Name`, `Email`, `PhoneNumber`, `PasswordHash`) 
+INSERT INTO `users` (`name`, `email`, `phone_number`, `password_hash`) 
 VALUES 
 ('Student', 'student@gmail.com', '99992222', 'passwordhash');
 
@@ -41,3 +43,12 @@ INSERT INTO `questions` (`question_text`, `description`, `question_type`, `optio
 VALUES 
 ('Cryptography can be easy, do you know what ROT13 is?', "cvpbPGS{arkg_gvzr_V'yy_gel_2_ebhaqf_bs_ebg13_nSkgmDJE}", 'LongAnswer', NULL, "picoCTF{next_time_I'll_try_2_rounds_of_rot13_aFxtzQWR}")
 
+CREATE TABLE IF NOT EXISTS `questions` (
+    `QuestionID` INT(11) NOT NULL AUTO_INCREMENT,
+    `QuestionText` TEXT NOT NULL,
+    `Description` TEXT DEFAULT NULL,
+    `QuestionType` ENUM('MCQ', 'ShortAnswer', 'LongAnswer') NOT NULL,
+    `Options` JSON DEFAULT NULL,    
+    `CorrectAnswer` TEXT DEFAULT NULL,
+    PRIMARY KEY (`QuestionID`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
