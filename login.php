@@ -74,7 +74,6 @@ function login_user($email, $password, &$errors) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-<<<<<<< Updated upstream
     if (!isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
         !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         $errors['general'] = 'Invalid CSRF token';
@@ -86,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     // Call the login function
         login_user($email, $password, $errors);
     }
-=======
     // Basic rate limiting (simple approach)
     if (!isset($_SESSION['login_attempts'])) {
         $_SESSION['login_attempts'] = 0;
@@ -127,7 +125,6 @@ if (isset($_GET['reset']) && $_GET['reset'] === 'success') {
 }
 if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
     $success_message = 'Registration successful! You can now log in.';
->>>>>>> Stashed changes
 }
 ?>
 
@@ -327,7 +324,6 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             <div class="general-error"><?php echo htmlspecialchars($errors['general']); ?></div>
         <?php endif; ?>
 
-<<<<<<< Updated upstream
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" name="password" id="password" placeholder="Enter your password" maxlength="255" autocomplete="off" required>
@@ -339,7 +335,6 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             <div class="links">
                 <p><a href="forgot_password_email.php">Forgot password?</a></p>
                 <p>Don't have an account? <a href="register.php">Register here</a></p>
-=======
         <form action="" method="post">
             <div class="form-group">
                 <label for="email">Email Address:</label>
@@ -349,7 +344,6 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
                 <?php if (!empty($errors['email'])): ?>
                     <span class="error"><?php echo htmlspecialchars($errors['email']); ?></span>
                 <?php endif; ?>
->>>>>>> Stashed changes
             </div>
 
             <div class="form-group">
