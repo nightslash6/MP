@@ -325,17 +325,8 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             <div class="general-error"><?php echo htmlspecialchars($errors['general']); ?></div>
         <?php endif; ?>
 
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" name="password" id="password" placeholder="Enter your password" maxlength="255" autocomplete="off" required>
-                </div>
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <input type="submit" class="btn" name="submit" value="Login">
-            </form>
+               
 
-            <div class="links">
-                <p><a href="forgot_password_email.php">Forgot password?</a></p>
-                <p>Don't have an account? <a href="register.php">Register here</a></p>
         <form action="" method="post">
             <div class="form-group">
                 <label for="email">Email Address:</label>
@@ -359,7 +350,7 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
                     <a href="forgot_password_email.php">Forgot password?</a>
                 </div>
             </div>
-
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="submit" class="btn" name="submit" value="Sign In" 
                    <?php echo (isset($_SESSION['login_attempts']) && $_SESSION['login_attempts'] >= 5) ? 'disabled' : ''; ?>>
         </form>

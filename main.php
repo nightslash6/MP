@@ -1,8 +1,10 @@
 <?php
-require 'db_connect.php';
+require 'config.php';
 // Assuming you have a database connection set up in $conn
 $conn = db_connect();
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -42,7 +44,7 @@ $conn = db_connect();
                 </ul>
             </div>
 
-            <a href="#">Log In</a>
+            <a href="login.php">Log In</a>
         </div>
 
     </nav>
