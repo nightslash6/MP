@@ -46,6 +46,7 @@ function login_user($email, $password, &$errors) {
             session_regenerate_id(true);
             
             $_SESSION['user_id'] = $user_id;
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // optional
             $_SESSION['name'] = $name;
             $_SESSION['email'] = $email;
             $_SESSION['login_time'] = time();
