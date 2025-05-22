@@ -4,6 +4,7 @@ session_regenerate_id(true);
 
 require 'config.php';
 
+<<<<<<< Updated upstream
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -41,9 +42,90 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         }else{
             $errors['password'] = 'Failed to update password. Please try again.';
         }
+=======
+$errors = ['general' => '', 'password' => ''];
+$token = '';
+$user_id = null;
+$valid_token = false;
+
+// Check if token is provided and validate it
+if (isset($_GET['token']) && !empty($_GET['token'])) {
+    $token = trim($_GET['token']);
+    
+    $conn = db_connect();
+    
+    // Check if token exists and is not expired
+    $stmt = $conn->prepare("SELECT user_id, name, reset_token_expiration FROM users WHERE reset_token = ? AND reset_token_expiration > NOW()");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        $user_id = $user['user_id'];
+        $valid_token = true;
+    } else {
+        $errors['general'] = 'Invalid or expired reset token. Please request a new password reset.';
+>>>>>>> Stashed changes
     }
+    
     $stmt->close();
     $conn->close();
+} else {
+    $errors['general'] = 'No reset token provided. Please use the link from your email.';
+}
+
+// Process password reset if token is valid and form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_token) {
+    $password = trim($_POST['password']);
+    $confirm_password = trim($_POST['confirm_password']);
+    $submitted_token = trim($_POST['token']);
+    
+    // Verify token hasn't changed
+    if ($submitted_token !== $token) {
+        $errors['general'] = 'Security token mismatch. Please try again.';
+    } elseif (empty($password)) {
+        $errors['password'] = 'Password cannot be empty.';
+    } elseif (strlen($password) < 8) {
+        $errors['password'] = 'Password must be at least 8 characters long.';
+    } elseif ($password !== $confirm_password) {
+        $errors['password'] = 'Passwords do not match.';
+    } else {
+        $conn = db_connect();
+        
+        // Double-check token is still valid before updating
+        $stmt = $conn->prepare("SELECT user_id FROM users WHERE reset_token = ? AND reset_token_expiration > NOW()");
+        $stmt->bind_param("s", $token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 1) {
+            // Update the password and clear the reset token
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            $updateStmt = $conn->prepare("UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiration = NULL WHERE user_id = ?");
+            $updateStmt->bind_param("si", $hashed_password, $user_id);
+            $updateStmt->execute();
+
+            if ($updateStmt->affected_rows === 1) {
+                // Password updated successfully
+                $updateStmt->close();
+                $stmt->close();
+                $conn->close();
+                
+                // Redirect with success message
+                header("Location: login.php?reset=success");
+                exit();
+            } else {
+                $errors['general'] = 'Failed to update password. Please try again.';
+            }
+            $updateStmt->close();
+        } else {
+            $errors['general'] = 'Reset token has expired. Please request a new password reset.';
+        }
+        
+        $stmt->close();
+        $conn->close();
+    }
 }
 }
 ?>
@@ -55,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
     <style>
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -74,13 +156,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         }
 
         .resetpassword-container {
-            background: #088f8f; /*blue green*/
+            background: #088f8f;
             padding: 50px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
             width: 450px;
-            left: 0;
         }
 
         h1 {
@@ -88,7 +169,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             font-weight: 600;
             color: #000;
             margin-bottom: 20px;
-            max-width: 400px;
         }
 
         .form-group {
@@ -117,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background: #5F9EA0; /*cadet blue*/
+            background: #5F9EA0;
             color: white;
             font-size: 16px;
             font-weight: bold;
@@ -126,7 +206,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         }
 
         button:hover {
-            background-color:  #40826D; /*viridian*/
+            background-color: #40826D;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
 
         .links {
@@ -135,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         }
 
         .links a {
-            color:#9FE2BF; /*seafoam green*/
+            color: #9FE2BF;
             text-decoration: none;
             font-weight: bold;
         }
@@ -151,31 +236,93 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             margin-bottom: 10px;
             display: block;
         }
+
+        .general-error {
+            color: #e3090c;
+            font-size: 16px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(227, 9, 12, 0.1);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .password-requirements {
+            font-size: 12px;
+            color: #333;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="resetpassword-container">
         <h1>Reset Password</h1>
 
-        <form action="" method="post">
-            <div class="form-group">
-                <label for="password">New Password:</label><br>
-                <input type="password" name="password" id="password" required><br>
-
-                <label for="confirm_password">Confirm Password:</label><br>
-                <input type="password" name="confirm_password" id="confirm_password" required><br>
-                 <?php if(!empty($errors['password'])): ?>
-                    <div class="error"><?php echo $errors['password']; ?></div>
-                <?php endif; ?>
+        <?php if (!empty($errors['general'])): ?>
+            <div class="general-error"><?php echo htmlspecialchars($errors['general']); ?></div>
+            <div class="links">
+                <p><a href="forgot_password.php">Request New Reset Link</a></p>
+                <p><a href="login.php">Back to Login</a></p>
             </div>
+<<<<<<< Updated upstream
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <button type="submit" name="submit">Reset Password</button>
         </form>
+=======
+        <?php elseif ($valid_token): ?>
+            <form action="" method="post">
+                <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+                
+                <div class="form-group">
+                    <label for="password">New Password:</label>
+                    <input type="password" name="password" id="password" required>
+                    <div class="password-requirements">
+                        Password must be at least 8 characters long
+                    </div>
+                </div>
+>>>>>>> Stashed changes
 
-        <div class="links">
-            <p><a href="login.php">Login here</a></p>
-        </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password:</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required>
+                    <?php if (!empty($errors['password'])): ?>
+                        <div class="error"><?php echo htmlspecialchars($errors['password']); ?></div>
+                    <?php endif; ?>
+                </div>
 
+                <button type="submit" name="submit">Reset Password</button>
+            </form>
+
+            <div class="links">
+                <p><a href="login.php">Back to Login</a></p>
+            </div>
+        <?php else: ?>
+            <div class="general-error">Access denied. Please use a valid reset link.</div>
+            <div class="links">
+                <p><a href="forgot_password.php">Request Password Reset</a></p>
+                <p><a href="login.php">Back to Login</a></p>
+            </div>
+        <?php endif; ?>
     </div>
+
+    <script>
+        // Add client-side password confirmation check
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
+            
+            function checkPasswordMatch() {
+                if (password.value !== confirmPassword.value) {
+                    confirmPassword.setCustomValidity('Passwords do not match');
+                } else {
+                    confirmPassword.setCustomValidity('');
+                }
+            }
+            
+            password.addEventListener('input', checkPasswordMatch);
+            confirmPassword.addEventListener('input', checkPasswordMatch);
+        });
+    </script>
 </body>
 </html>

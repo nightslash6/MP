@@ -3,8 +3,8 @@ session_start();
 session_regenerate_id(true);
 
 require 'config.php';
-/* figure out CSRF token
-require 'csrf.php'; (need to create)*/
+
+date_default_timezone_set("Asia/Singapore");
 
 // Load PHPMailer
 require 'PHPMailer/PHPMailer-master/src/PHPMailer.php';
@@ -12,26 +12,16 @@ require 'PHPMailer/PHPMailer-master/src/SMTP.php';
 require 'PHPMailer/PHPMailer-master/src/Exception.php';
  
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-
- /*
-// Generate CSRF token
-$csrfToken = generateCSRFToken();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate CSRF token
-    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-        die("CSRF token validation failed.");
-    }
-*/
 
 $notification = ['email' => ''];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
-    $email = trim($_POST['email']); //sanitize user input
+    $email = trim($_POST['email']);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $notification['email'] = 'Invalid email format.';
+        $notification['email'] = 'Invalid email format.';
     } else {
         $conn = db_connect();
         // Check if email exists in the database
@@ -43,53 +33,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         if ($stmt->num_rows === 1) {
             $stmt->bind_result($user_id, $name);
             $stmt->fetch();
-            /*$token = bin2hex(random_bytes(50)); // Generate a secure token
-            $stmt->bind_result($user_id);
-            $stmt->fetch();*/
-            //$user = $result->fetch_assoc();
             
-            /* // Store token in database
+            // Generate a secure token for password reset
+            $token = bin2hex(random_bytes(50));
+            
+            // Store token in database with expiration
             $expiry = date("Y-m-d H:i:s", strtotime("+1 hour"));
-            $stmt = $conn->prepare("UPDATE users SET reset_token=?, reset_token_expiration=? WHERE user_id=?");
-            $stmt->bind_param("ssi", $token, $expiry, $user_id);
-            $stmt->execute();*/
+            $updateStmt = $conn->prepare("UPDATE users SET reset_token=?, reset_token_expiration=? WHERE user_id=?");
+            $updateStmt->bind_param("ssi", $token, $expiry, $user_id);
+            $updateStmt->execute();
+            $updateStmt->close();
 
-            // Build the reset link
-            $resetLink = "http://localhost/MajorProject/MP/reset_password.php" /*?token=" . urlencode($resetToken)*/;
+            // Build the reset link with token
+            $resetLink = "http://localhost//empty/MP/reset_password.php?token=$token";
+            
             // Send email
             $mail = new PHPMailer(true);
             try {
+                // Server settings
                 $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
+                $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'xxx@gmail.com'; // My Gmail
-                $mail->Password = 'xxx'; // Gmail app password
+                $mail->Username = 'mporganization66@gmail.com'; // Your Gmail
+                $mail->Password = 'jarx gctl nhsb ivra'; // Use App Password, not regular password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
+                
+                // Enable debugging (remove in production)
+            
 
-                $mail->setFrom('my-gmail@gmail.com', 'Reset password link');
-                $mail->addAddress($email);
+                // Recipients
+                $mail->setFrom('mporganization66@gmail.com', 'Password Reset');
+                $mail->addAddress($email, $name);
 
+                // Content
                 $mail->isHTML(true);
                 $mail->Subject = 'Password Reset Request';
                 $mail->Body = "
-                            <h1>Password Reset Request</h1>
-                            <p>Hi <?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>,</p>
-                            <p>Click the link below to reset your password:</p>
-                            <p><a href='$resetLink'>$resetLink</a></p>
-                            <p>This link will expire in 1 hour.</p>";
-                        $mail->AltBody = "Use the following link to reset your password: $resetLink";
+                    <h1>Password Reset Request</h1>
+                    <p>Hi " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ",</p>
+                    <p>You requested a password reset. Click the link below to reset your password:</p>
+                    <p><a href='$resetLink'>Reset Password</a></p>
+                    <p>Or copy and paste this link: $resetLink</p>
+                    <p>This link will expire in 1 hour.</p>
+                    <p>If you didn't request this, please ignore this email.</p>";
+                    
+                $mail->AltBody = "Hi $name, Use the following link to reset your password: $resetLink This link will expire in 1 hour.";
 
-                        $mail->send();
-                            $notification['email'] = 'Email sent successfully!';
-                    } catch (Exception $e) {
-                        $notification['email'] = 'Email could not be sent. Error: '. $mail->ErrorInfo;
-                    }
-                    $stmt->close();
-                    $conn->close();
+                $mail->send();
+                $notification['email'] = 'Email sent successfully! Check your inbox.';
+                
+            } catch (Exception $e) {
+                $notification['email'] = 'Email could not be sent. Error: ' . $mail->ErrorInfo;
+                // Log the full error for debugging
+                error_log("PHPMailer Error: " . $e->getMessage());
+            }
+            
         } else {
-            $notification['email'] = 'Email not found.';
+            $notification['email'] = 'Email not found in our records.';
         }
+        
+        $stmt->close();
+        $conn->close();
     }
 }
 ?>
@@ -101,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
     <style>
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -120,13 +125,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         }
 
         .forgotpassword-container {
-            background:  #088f8f; /*blue green*/
+            background: #088f8f;
             padding: 50px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
             width: 450px;
-            left: 0;
         }
 
         h1 {
@@ -163,7 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background: #5F9EA0; /*cadet blue*/
+            background: #5F9EA0;
             color: white;
             font-size: 16px;
             font-weight: bold;
@@ -172,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         }
 
         button:hover {
-            background-color: #40826D; /*viridian*/
+            background-color: #40826D;
         }
 
         .links {
@@ -181,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         }
 
         .links a {
-            color: #9FE2BF; /*seafoam green*/
+            color: #9FE2BF;
             text-decoration: none;
             font-weight: bold;
         }
@@ -190,12 +194,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             text-decoration: underline;
         }
 
-         .notification {
+        .notification {
             color: #e3090c;
             font-size: 14px;
             margin-top: -10px;
             margin-bottom: 10px;
             display: block;
+        }
+
+        .notification.success {
+            color: #28a745;
         }
     </style>
 </head>
@@ -206,18 +214,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         <form action="" method="POST">
             <div class="form-group">
                 <label for="email">Enter your email address:</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
+                <input type="email" id="email" name="email" placeholder="Enter your email" 
+                       value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required>
                 <?php if(!empty($notification['email'])): ?>
-                    <div class="notification"><?php echo $notification['email']; ?></div>
+                    <div class="notification <?php echo (strpos($notification['email'], 'successfully') !== false) ? 'success' : ''; ?>">
+                        <?php echo htmlspecialchars($notification['email']); ?>
+                    </div>
                 <?php endif; ?>
             </div>
-            <button type="submit" name="submit">Send reset link</button>
+            <button type="submit" name="submit">Send Reset Link</button>
         </form>
 
         <div class="links">
-            <p><a href="login.php">Login here</a></p>
+            <p><a href="login.php">Back to Login</a></p>
         </div>
-
     </div>
 </body>
 </html>
