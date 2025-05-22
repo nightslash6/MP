@@ -4,13 +4,24 @@ session_regenerate_id(true);
 
 require 'config.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 //test
 
 $errors = ['password' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-    $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
+    // CSRF check
+    if (
+        !isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        $errors['password'] = 'Invalid CSRF token.';
+    } else {
+        $password = trim($_POST['password']);
+        $confirm_password = trim($_POST['confirm_password']);
 
     if ($password !== $confirm_password) {
         $errors['password'] = 'Passwords do not match';
@@ -24,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         $stmt->execute();
 
         if ($stmt->affected_rows === 1) {
+            unset($_SESSION['csrf_token']);
             header("Location: login.php?reset=success");
             exit();
         }else{
@@ -32,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
     }
     $stmt->close();
     $conn->close();
+}
 }
 ?>
 
@@ -155,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                     <div class="error"><?php echo $errors['password']; ?></div>
                 <?php endif; ?>
             </div>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <button type="submit" name="submit">Reset Password</button>
         </form>
 

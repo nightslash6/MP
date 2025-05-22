@@ -4,6 +4,10 @@ session_regenerate_id(true);
 
 require 'config.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $errors = [
     'email' => '',
     'general' => ''
@@ -53,12 +57,17 @@ function login_user($email, $password, &$errors) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
+    if (!isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $errors['general'] = 'Invalid CSRF token';
+    } else {
     // Retrieve and sanitize the email and password
-    $email = htmlspecialchars(trim($_POST['email']));
-    $password = trim($_POST['password']); // Password does not need htmlspecialchars 
+        $email = htmlspecialchars(trim($_POST['email']));
+        $password = trim($_POST['password']); // Password does not need htmlspecialchars 
 
     // Call the login function
-    login_user($email, $password, $errors);
+        login_user($email, $password, $errors);
+    }
 }
 ?>
 
@@ -189,6 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
                     <label for="password">Password:</label>
                     <input type="password" name="password" id="password" placeholder="Enter your password" maxlength="255" autocomplete="off" required>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <input type="submit" class="btn" name="submit" value="Login">
             </form>
 
