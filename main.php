@@ -166,7 +166,7 @@ if (isset($_SESSION['user_id'])) {
             <a href="#" class="logo-text">Cybersite</a>
         </div>
         <div class="nav-links">
-            <a href="user_profile.php">Get Started</a>
+            <a href="#">Get Started</a>
             <a href="#">Learn</a>
             <a href="quiz.php">Practice</a>
             <a href="#">Compete</a>
@@ -323,7 +323,7 @@ if (isset($_SESSION['user_id'])) {
                                 <div class="user-name">${userData.name}</div>
                                 <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
                             </div>
-                            <a href="profile.php">My Profile</a>
+                            <a href="user_profile.php">My Profile</a>
                             <a href="dashboard.php">Dashboard</a>
                             <a href="settings.php">Settings</a>
                             <a href="progress.php">My Progress</a>
