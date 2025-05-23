@@ -203,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         }
 
         .notification.success {
-            color: #28a745;
+            color: #004526; 
         }
     </style>
 </head>

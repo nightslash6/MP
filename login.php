@@ -257,7 +257,7 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
         }
 
         .success-message {
-            color: #28a745;
+            color: #004526;
             font-size: 14px;
             margin-bottom: 15px;
             padding: 10px;
