@@ -4,45 +4,6 @@ session_regenerate_id(true);
 
 require 'config.php';
 
-<<<<<<< Updated upstream
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-//test
-
-$errors = ['password' => ''];
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-    // CSRF check
-    if (
-        !isset($_POST['csrf_token'], $_SESSION['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
-        $errors['password'] = 'Invalid CSRF token.';
-    } else {
-        $password = trim($_POST['password']);
-        $confirm_password = trim($_POST['confirm_password']);
-
-    if ($password !== $confirm_password) {
-        $errors['password'] = 'Passwords do not match';
-    } else {
-        $conn = db_connect();
-
-        // Update the password
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
-        $stmt->bind_param("si", $hashed_password, $user_id);
-        $stmt->execute();
-
-        if ($stmt->affected_rows === 1) {
-            unset($_SESSION['csrf_token']);
-            header("Location: login.php?reset=success");
-            exit();
-        }else{
-            $errors['password'] = 'Failed to update password. Please try again.';
-        }
-=======
 $errors = ['general' => '', 'password' => ''];
 $token = '';
 $user_id = null;
@@ -54,8 +15,8 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
     
     $conn = db_connect();
     
-    // Check if token exists and is not expired
-    $stmt = $conn->prepare("SELECT user_id, name, reset_token_expiration FROM users WHERE reset_token = ? AND reset_token_expiration > NOW()");
+    // Validate token
+    $stmt = $conn->prepare("SELECT user_id, name FROM users WHERE reset_token = ? AND reset_token_expiration > NOW()");
     $stmt->bind_param("s", $token);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -65,8 +26,18 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
         $user_id = $user['user_id'];
         $valid_token = true;
     } else {
-        $errors['general'] = 'Invalid or expired reset token. Please request a new password reset.';
->>>>>>> Stashed changes
+        // Check if token exists but is expired
+        $expiredCheck = $conn->prepare("SELECT user_id FROM users WHERE reset_token = ?");
+        $expiredCheck->bind_param("s", $token);
+        $expiredCheck->execute();
+        $expiredResult = $expiredCheck->get_result();
+        
+        if ($expiredResult->num_rows === 1) {
+            $errors['general'] = 'Reset token has expired. Please request a new password reset.';
+        } else {
+            $errors['general'] = 'Invalid reset token. Please request a new password reset.';
+        }
+        $expiredCheck->close();
     }
     
     $stmt->close();
@@ -126,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
         $stmt->close();
         $conn->close();
     }
-}
 }
 ?>
 
@@ -265,11 +235,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
                 <p><a href="forgot_password.php">Request New Reset Link</a></p>
                 <p><a href="login.php">Back to Login</a></p>
             </div>
-<<<<<<< Updated upstream
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <button type="submit" name="submit">Reset Password</button>
-        </form>
-=======
         <?php elseif ($valid_token): ?>
             <form action="" method="post">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
@@ -281,7 +246,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
                         Password must be at least 8 characters long
                     </div>
                 </div>
->>>>>>> Stashed changes
 
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password:</label>
@@ -305,24 +269,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
             </div>
         <?php endif; ?>
     </div>
-
-    <script>
-        // Add client-side password confirmation check
-        document.addEventListener('DOMContentLoaded', function() {
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirm_password');
-            
-            function checkPasswordMatch() {
-                if (password.value !== confirmPassword.value) {
-                    confirmPassword.setCustomValidity('Passwords do not match');
-                } else {
-                    confirmPassword.setCustomValidity('');
-                }
-            }
-            
-            password.addEventListener('input', checkPasswordMatch);
-            confirmPassword.addEventListener('input', checkPasswordMatch);
-        });
-    </script>
 </body>
 </html>
