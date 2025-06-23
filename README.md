@@ -6,23 +6,23 @@ Register:
 ✓ Check if input for phone number is in digits only
 ✓ Password has been hashed
 ✓ Messages shown on screen
-✕ CSRF Token
+✓ CSRF Token
 
 Login:
 ✓ Validate email format
 ✓ Verify email and password
 ✓ Messages shown on screen
-✕ CSRF Token
+✓ CSRF Token
 
 Forgot password:
 ✓ Check if input for email is valid
 ✓ Check if email exists
 ✓ Sends successful/unsuccessful message
 ✓ Messages shown on screen
-✕ CSRF Token
+✓ Token
 
 Reset password:
 ✓ Check if password is keyed in the same twice
 ✓ Messages shown on screen
-✕ CSRF Token
+✓ Token
 
