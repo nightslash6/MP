@@ -1,0 +1,134 @@
+/* Apply dark theme globally */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0e1111;
+    color: #e0e0e0;
+}
+
+html, body {
+    height: auto;
+    overflow-y: auto;
+}
+
+/* Header (scroll-hide effect already works) */
+.top-header {
+    background-color: #0f1b1d;
+    color: #00ff9f;
+    padding: 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    transition: top 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 255, 159, 0.2);
+}
+
+/* Sidebar menu */
+.sidebar {
+    width: 250px;
+    background-color: #111418;
+    padding: 50px;
+    position: sticky;
+    top: 100px;
+    max-height: calc(80vh); /* optional scroll */
+}
+
+.sidebar h3 {
+    color: #00ff9f;
+    margin-bottom: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px solid #00ff9f;
+    color: #00ff9f;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.sidebar button.active,
+.sidebar button:hover {
+    background-color: #00ff9f;
+    color: #0e1111;
+}
+
+/* Grid layout for challenges */
+.dashboard-container {
+    display: flex;
+    margin-top: 80px; /* ✅ Good! Leaves space for fixed header */
+}
+
+/* Challenge cards */
+.challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
+    gap: 50px;
+    padding: 150px;
+    flex-grow: 1;
+}
+
+.challenge-card {
+    background-color: #1a1f23;
+    border: 5px solid #00ff9f55;
+    border-radius: 20px;
+    padding: 10px;  
+    box-shadow: 0 0 10px rgba(0, 255, 159, 0.1);
+    transition: transform 0.2s;
+    min-height: 1px; /* ↓ Shorter height */
+}
+
+.challenge-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(0, 255, 159, 0.3);
+}
+
+.challenge-card h4 a {
+    color: #00ff9f;
+    text-decoration: none;
+}
+
+.challenge-card p {
+    margin: 5px 0;
+    color: #ccc;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+/* Difficulty color styles */
+.difficulty.easy {
+    color: #4caf50;
+}
+
+.difficulty.medium {
+    color: #ffc107;
+}
+
+.difficulty.hard {
+    color: #f44336;
+}
+
+.category {
+    font-weight: bold;
+    color: #00ff9f;
+}

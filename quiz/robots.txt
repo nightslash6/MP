@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /notimportant/
+Disallow: /nothinghere/
+Disallow: /supersecret/
