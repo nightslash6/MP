@@ -46,6 +46,11 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
     $errors['general'] = 'No reset token provided. Please use the link from your email.';
 }
 
+// Step 1: Generate CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Process password reset if token is valid and form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_token) {
     $password = trim($_POST['password']);
@@ -53,7 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
     $submitted_token = trim($_POST['token']);
     
     // Verify token hasn't changed
-    if ($submitted_token !== $token) {
+    // ✅ STEP 3: CSRF check
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    $errors['general'] = 'Invalid CSRF token. Please refresh the page and try again.';
+    } elseif ($submitted_token !== $token) {
         $errors['general'] = 'Security token mismatch. Please try again.';
     } elseif (empty($password)) {
         $errors['password'] = 'Password cannot be empty.';
@@ -82,6 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
                 $updateStmt->close();
                 $stmt->close();
                 $conn->close();
+
+                // ✅ STEP 4: Invalidate CSRF token after use
+                unset($_SESSION['csrf_token']);
                 
                 // Redirect with success message
                 header("Location: login.php?reset=success");
@@ -238,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
         <?php elseif ($valid_token): ?>
             <form action="" method="post">
                 <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
-                
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                 <div class="form-group">
                     <label for="password">New Password:</label>
                     <input type="password" name="password" id="password" required>
