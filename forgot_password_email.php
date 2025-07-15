@@ -104,41 +104,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="mstyles.css">
     <title>Forgot Password</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Cambria';
         }
 
         body {
-            background: url('login_background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            height: 100vh;
-            backdrop-filter: blur(5px);
-            padding-left: 190px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgb(82, 139, 205),rgb(107, 89, 189));
         }
 
         .forgotpassword-container {
-            background: #088f8f;
-            padding: 50px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 450px;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;           
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
-            color: #000;
-            margin-bottom: 20px;
-            max-width: 400px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .form-group {
@@ -185,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         }
 
         .links a {
-            color: #9FE2BF;
+            color: rgb(20, 117, 67);
             text-decoration: none;
             font-weight: bold;
         }

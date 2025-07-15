@@ -105,54 +105,51 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             font-family: 'Cambria';
         }
 
-        body{
-            background: url('login_background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            height: 100vh;
-            backdrop-filter: blur(5px);
-            padding-left: 190px;
+        body {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgb(82, 139, 205),rgb(107, 89, 189));
         }
 
-        .register-container{
-            background: #088f8f; /*blue green*/
-            padding: 70px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+        .register-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;           
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 30px;
             text-align: center;
-            width: 450px;
         }
 
-        h1{
-            font-size: 26px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 20px;
-            max-width: 400px;
+        .form-group {
+           margin-bottom: 20px;
         }
 
-        .form-group{
-            text-align: left;
-            margin-bottom: 15px;
+        label {
+           font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        label{
-            font-size: 14px;
-            font-weight: 600;
-            color: #000;
-        }
-
-        input{
+        input[type="text"], input[type="email"], input[type="password"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
-            margin-top: 5px;
             margin-bottom: 15px;
+            transition: border-color 0.3s ease;
         }
+
 
         button{
             width: 100%;
@@ -177,7 +174,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         }
 
         .links a {
-            color: #9FE2BF; /*seafoam green*/
+            color: rgb(20, 117, 67); /*seafoam green*/
             text-decoration: none;
             font-weight: bold;
         }
