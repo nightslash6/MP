@@ -36,7 +36,7 @@ if (isset($_SESSION['user_id'])) {
         }
         
         .profile-button {
-            background: linear-gradient(135deg, #8a2be2 0%, #9932CC 100%);
+            background: grey;
             color: white;
             padding: 8px 16px;
             border: none;
@@ -296,6 +296,8 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </div>
+
+    
     </div>
 
     <script>
