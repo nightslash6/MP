@@ -188,6 +188,8 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `phone_number` varchar(8) NOT NULL,
   `password_hash` varchar(255) NOT NULL
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expiration` timestamp NULL DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
