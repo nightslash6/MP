@@ -118,67 +118,67 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
     <style>
-        * {
+       * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Cambria';
         }
 
         body {
-            background: url('login_background.jpg') no-repeat center center fixed;
-            background-size: cover;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgb(82, 139, 205), rgb(107, 89, 189));
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
-            height: 100vh;
-            backdrop-filter: blur(5px);
-            padding-left: 190px;
         }
 
         .resetpassword-container {
-            background: #088f8f;
-            padding: 50px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 450px;
+            max-width: 500px;
+            margin: 20px;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
-            color: #000;
-            margin-bottom: 20px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .form-group {
-            text-align: left;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #000;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        input {
+        input[type="password"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
-            margin-top: 5px;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
+            transition: border-color 0.3s ease;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 5px;
-            background: #5F9EA0;
+            background: #5F9EA0; /* cadet blue */
             color: white;
             font-size: 16px;
             font-weight: bold;
@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
         }
 
         button:hover {
-            background-color: #40826D;
+            background-color: #40826D; /* viridian */
         }
 
         button:disabled {
@@ -196,12 +196,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
         }
 
         .links {
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 14px;
+            text-align: center;
         }
 
         .links a {
-            color: #9FE2BF;
+            color: rgb(20, 117, 67); /* seafoam green */
             text-decoration: none;
             font-weight: bold;
         }
@@ -230,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && $valid_to
 
         .password-requirements {
             font-size: 12px;
-            color: #333;
+            color: #666;
             margin-top: -10px;
             margin-bottom: 10px;
         }
