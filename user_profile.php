@@ -56,45 +56,64 @@ if (!$UserRecord) {
         }
 
         body {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgb(82, 139, 205), rgb(107, 89, 189));
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: Cambria, serif;
-            background: #FFE4E1;
             padding: 20px;
         }
-        
+
         .profile-container {
-            background: #a0a0a0;
-            position: relative;
-            padding: 60px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 100%;
             max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-        .profile_display {
-            text-align: left;
-            margin-bottom: 20px;
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5F9EA0 0%, #40826D 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 32px;
+            color: white;
+            margin: 0 auto 20px auto;
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
-            color: #000; 
+            color: #333;
             margin-bottom: 30px;
             text-align: center;
         }
 
+        .user-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .profile_display {
+            text-align: left;
+        }
+
         label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #000;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
             display: block;
-            margin-bottom: 5px;
         }
 
         input {
@@ -104,13 +123,13 @@ if (!$UserRecord) {
             border-radius: 5px;
             font-size: 14px;
             margin-bottom: 15px;
-            background-color: #f8f9fa;
-            color: #333;
+            transition: border-color 0.3s ease;
         }
 
         input[readonly] {
-            background-color: #e9ecef;
+            background-color: #f5f5f5;
             cursor: not-allowed;
+            color: #333;
         }
 
         .button-container {
@@ -125,51 +144,34 @@ if (!$UserRecord) {
             text-decoration: none;
             padding: 12px 20px;
             border-radius: 5px;
-            font-family: Cambria, serif;
-            font-size: 14px;
-            color: black;
-            background: #A7C7E7;
+            font-size: 16px;
+            font-weight: bold;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background 0.3s ease;
         }
 
-        .home-button:hover, .edit-button:hover {
-            background: #78b0ec;
+        .home-button {
+            background: #5F9EA0; /* cadet blue */
+            color: white;
+        }
+
+        .home-button:hover {
+            background: #4c8b8d;
         }
 
         .edit-button {
-            background: #90EE90;
+            background: #90EE90; /* light green */
+            color: #333;
         }
 
         .edit-button:hover {
             background: #7FDD7F;
         }
 
-        .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #8a2be2 0%, #9932CC 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 32px;
-            color: white;
-            margin: 0 auto 20px auto;
-        }
-
         @media (max-width: 480px) {
             .profile-container {
-                padding: 40px 20px;
+                padding: 30px 20px;
             }
             
             .button-container {
