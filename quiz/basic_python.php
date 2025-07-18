@@ -235,7 +235,7 @@ while ($row = $sub_result->fetch_assoc()) {
           <?= nl2br(htmlspecialchars($sub['content'])) ?>
         </div>
 
-        <?php if (!empty($topic['example'])): ?>
+        <?php if (!empty($sub['example'])): ?>
           <h4>Example:</h4>
           <pre><code><?= htmlspecialchars($sub['example']) ?></code></pre>
         <?php endif; ?>
