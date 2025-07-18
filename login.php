@@ -31,14 +31,14 @@ function login_user($email, $password, &$errors) {
     }
 
     // Fetch user data from the database
-    $stmt = $conn->prepare("SELECT user_id, name, password_hash FROM users WHERE email = ?"); 
+    $stmt = $conn->prepare("SELECT user_id, name, password_hash, user_role FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     // Check if a user was found
     if ($stmt->num_rows === 1) {
-        $stmt->bind_result($user_id, $name, $password_hash);
+        $stmt->bind_result($user_id, $name, $password_hash, $user_role);
         $stmt->fetch();
 
         if (password_verify($password, $password_hash)) {
@@ -50,6 +50,7 @@ function login_user($email, $password, &$errors) {
             $_SESSION['name'] = $name;
             $_SESSION['email'] = $email;
             $_SESSION['login_time'] = time();
+            $_SESSION['user_role'] = $user_role;
 
             $stmt->close();
             $conn->close();
