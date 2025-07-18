@@ -29,6 +29,9 @@ if (isset($_SESSION['user_id'])) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="mstyles.css">
+    <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="eL8-LhqxDLzhQl7IBXcFh";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <style>
         /* Additional styles for profile dropdown */
         .profile-dropdown {
@@ -176,13 +179,13 @@ if (isset($_SESSION['user_id'])) {
                 <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
                     <li><a class="dropdown-item" href="mcq_quiz.php">Mini Quiz</a></li>
                     <li><a class="dropdown-item" href="basic_python.php">Python Quiz</a></li>
-                    <li><a class="dropdown-item" href="ctf_challenges.php">Capture The Flag</a></li>
+                    <li><a class="dropdown-item" href="ctf_challenge.php">Capture The Flag</a></li>
                     <li><a class="dropdown-item" href="forensics_challenge.php">Forensics Challenge</a></li>
                     
                 </ul>
             </div>
 
-            <a href="#">Compete</a>
+            <a href="chat.php">AI Chatbot</a>
 
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -291,16 +294,6 @@ if (isset($_SESSION['user_id'])) {
                             <h3 class="card-title">Resources</h3>
                             <p class="card-text">Access tools, guides, and additional learning materials.</p>
                             <a href="#" class="btn btn-primary card-btn">Explore Resources</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-6">
-                    <div class="card site-card mb-4">
-                        <div class="card-body">
-                            <h3 class="card-title">CTF Challenges</h3>
-                            <p class="card-text">Try to find and retrieve secret "flags" within purposefully vulnerable systems or applications.</p>
-                            <a href="ctf_challenges.php" class="btn btn-primary card-btn">Attempts</a>
                         </div>
                     </div>
                 </div>
