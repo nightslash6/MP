@@ -4,15 +4,16 @@ require 'config.php';
 // Assuming you have a database connection set up in $conn
 $conn = db_connect();
 
+
 // Check if user is logged in and get user data
 $user_data = null;
 if (isset($_SESSION['user_id'])) {
-    $stmt = $conn->prepare("SELECT user_id, name, email FROM users WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows === 1) {
-        $user_data = $result->fetch_assoc();
+    $user_data = $result->fetch_assoc();
     }
     $stmt->close();
 }
@@ -36,7 +37,7 @@ if (isset($_SESSION['user_id'])) {
         }
         
         .profile-button {
-            background: grey;
+            background: linear-gradient(135deg, #8a2be2 0%, #9932CC 100%);
             color: white;
             padding: 8px 16px;
             border: none;
@@ -296,8 +297,6 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </div>
-
-    
     </div>
 
     <script>
@@ -311,28 +310,29 @@ if (isset($_SESSION['user_id'])) {
             
             if (userData && userData.user_id) {
                 // User is logged in - show profile dropdown
-                authSection.innerHTML = `
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <button class="profile-button" onclick="toggleProfileDropdown()">
-                            <div class="profile-avatar">
-                                ${userData.name.charAt(0).toUpperCase()}
-                            </div>
-                            ${userData.name}
-                            <span style="font-size: 10px;">▼</span>
-                        </button>
-                        <div class="profile-dropdown-content" id="profileDropdownContent">
-                            <div class="user-info">
-                                <div class="user-name">${userData.name}</div>
-                                <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
-                            </div>
-                            <a href="user_profile.php">My Profile</a>
-                            <a href="dashboard.php">Dashboard</a>
-                            <a href="settings.php">Settings</a>
-                            <a href="progress.php">My Progress</a>
-                            <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
-                        </div>
+            authSection.innerHTML = `
+                <div class="profile-dropdown" id="profileDropdown">
+                 <button class="profile-button" onclick="toggleProfileDropdown()">
+                     <div class="profile-avatar">
+                         ${userData.name.charAt(0).toUpperCase()}
+                     </div>
+                        ${userData.name}
+                      <span style="font-size: 10px;">▼</span>
+                   </button>
+                   <div class="profile-dropdown-content" id="profileDropdownContent">
+                       <div class="user-info">
+                           <div class="user-name">${userData.name}</div>
+                          <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
+                       </div>
+                      <a href="user_profile.php">My Profile</a>
+                       <a href="dashboard.php">Dashboard</a>
+                      <a href="settings.php">Settings</a>
+                      <a href="progress.php">My Progress</a>
+                       ${userData.user_role === 'admin' ? `<a href="admin_dashboard.php">Admin Dashboard</a>` : ''}
+                       <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
                     </div>
-                `;
+              </div>
+            `;
                 
                 // Update welcome message
                 welcomeMessage.textContent = `Welcome back, ${userData.name}! Ready to continue your cybersecurity journey?`;
