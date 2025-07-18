@@ -174,10 +174,10 @@ if (isset($_SESSION['user_id'])) {
                     Practice
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
-                    <li><a class="dropdown-item" href="quiz.php">Mini Quiz</a></li>
-                    <li><a class="dropdown-item" href="#">Python Quiz</a></li>
-                    <li><a class="dropdown-item" href="#">Capture The Flag</a></li>
-                    <li><a class="dropdown-item" href="#">Forensics Challenge</a></li>
+                    <li><a class="dropdown-item" href="mcq_quiz.php">Mini Quiz</a></li>
+                    <li><a class="dropdown-item" href="basic_python.php">Python Quiz</a></li>
+                    <li><a class="dropdown-item" href="ctf_challenge.php">Capture The Flag</a></li>
+                    <li><a class="dropdown-item" href="forensics_challenge.php">Forensics Challenge</a></li>
                     
                 </ul>
             </div>
