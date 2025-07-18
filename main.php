@@ -169,7 +169,19 @@ if (isset($_SESSION['user_id'])) {
         <div class="nav-links">
             <a href="#">Get Started</a>
             <a href="#">Learn</a>
-            <a href="quiz.php">Practice</a>
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="#" id="practiceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Practice
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                    <li><a class="dropdown-item" href="quiz.php">Mini Quiz</a></li>
+                    <li><a class="dropdown-item" href="#">Python Quiz</a></li>
+                    <li><a class="dropdown-item" href="#">Capture The Flag</a></li>
+                    <li><a class="dropdown-item" href="#">Forensics Challenge</a></li>
+                    
+                </ul>
+            </div>
+
             <a href="#">Compete</a>
 
             <div class="dropdown">
