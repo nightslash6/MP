@@ -3,7 +3,12 @@ session_start();
 require 'config.php';
 
 $conn = db_connect();
-
+/*
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+*/
 // Fetch all Python topics from database
 $stmt = $conn->prepare("SELECT * FROM python");
 $stmt->execute();
