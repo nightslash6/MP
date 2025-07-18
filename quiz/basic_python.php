@@ -148,6 +148,24 @@ while ($row = $sub_result->fetch_assoc()) {
       padding: 5px 0;
     }
   
+   .content-section {
+    white-space: pre-wrap; /* Preserve line breaks and spacing */
+    word-wrap: break-word; /* Break long words if needed */
+    margin-bottom: 1rem;
+  }
+
+  pre {
+    background: #f4f4f4;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto; /* Add horizontal scroll if needed */
+    white-space: pre; /* Preserve all whitespace */
+  }
+
+  code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+  }
   </style>
 </head>
 <body>
@@ -184,23 +202,18 @@ while ($row = $sub_result->fetch_assoc()) {
   <?php foreach ($topics as $topic): ?>
     <div id="tab<?= $topic['python_id'] ?>" class="tab-content">
       <h1><?= htmlspecialchars($topic['topic']) ?></h1>
-      <?php
-      $content_lines = explode('//', $topic['content']); //Split the examples by "//" which are in the db  (e.g. age = 30//name = "John")
-      foreach ($content_lines as $c_line) {
-        echo htmlspecialchars($c_line)  .  "<br>";
-      }
-      ?>
+      
+      <div class="content-section">
+        <?= nl2br(htmlspecialchars($topic['content'])) ?>
+      </div>
 
-      <h4>Example:</h4>
-      <?php
-      $example_lines = explode('//', $topic['example']); 
-      foreach ($example_lines as $line) {
-        echo htmlspecialchars($line)  .  "<br>";
-      }
-      ?>
+      <?php if (!empty($topic['example'])): ?>
+        <h4>Example:</h4>
+        <pre><code><?= htmlspecialchars($topic['example']) ?></code></pre>
+      <?php endif; ?>
 
       <h4>Try it:</h4>
-      <p><?= htmlspecialchars($topic['question']) ?></p>
+      <p><?= nl2br(htmlspecialchars($topic['question'])) ?></p>
       <textarea id="code-tab<?= $topic['python_id'] ?>"></textarea>
       <button class="run-btn" onclick="runCode('code-tab<?= $topic['python_id'] ?>', 'output-tab<?= $topic['python_id'] ?>')">Run Code</button>
       <pre id="output-tab<?= $topic['python_id'] ?>" class="output"></pre>
@@ -212,26 +225,21 @@ while ($row = $sub_result->fetch_assoc()) {
     <?php foreach ($topic_subs as $sub): ?>
       <div id="subtab<?= $sub['subtopic_id'] ?>" class="tab-content">
         <h2><?= htmlspecialchars($sub['subtopic_title']) ?></h2>
-        <?php
-        $content_lines = explode('//', $sub['content']); //Split the examples by "//" which are in the db  (e.g. age = 30//name = "John")
-        foreach ($content_lines as $c_line) {
-          echo htmlspecialchars($c_line)  .  "<br>";
-        }
-        ?>
 
-        <h4>Example:</h4>
-        <?php
-        $example_lines = explode('//', $sub['example']);
-        foreach ($example_lines as $line) {
-          echo htmlspecialchars($line) . "<br>";
-        }
-        ?>
+        <div class="content-section">
+          <?= nl2br(htmlspecialchars($sub['content'])) ?>
+        </div>
+
+        <?php if (!empty($topic['example'])): ?>
+          <h4>Example:</h4>
+          <pre><code><?= htmlspecialchars($sub['example']) ?></code></pre>
+        <?php endif; ?>
 
         <h4>Try it:</h4>
-        <p><?= htmlspecialchars($sub['question']) ?></p>
-        <textarea id="code-subtab<?= $sub['subtopic_id'] ?>"></textarea>
-        <button class="run-btn" onclick="runCode('code-subtab<?= $sub['subtopic_id'] ?>', 'output-subtab<?= $sub['subtopic_id'] ?>')">Run Code</button>
-        <pre id="output-subtab<?= $sub['subtopic_id'] ?>" class="output"></pre>
+        <p><?= nl2br(htmlspecialchars($sub['question'])) ?></p>
+        <textarea id="code-tab<?= $sub['subtopic_id'] ?>"></textarea>
+        <button class="run-btn" onclick="runCode('code-tab<?= $sub['subtopic_id'] ?>', 'output-tab<?= $topic['python_id'] ?>')">Run Code</button>
+        <pre id="output-tab<?= $sub['subtopic_id'] ?>" class="output"></pre>
       </div>
     <?php endforeach; ?>
   <?php endforeach; ?>
