@@ -4,15 +4,16 @@ require 'config.php';
 // Assuming you have a database connection set up in $conn
 $conn = db_connect();
 
+
 // Check if user is logged in and get user data
 $user_data = null;
 if (isset($_SESSION['user_id'])) {
-    $stmt = $conn->prepare("SELECT user_id, name, email FROM users WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows === 1) {
-        $user_data = $result->fetch_assoc();
+    $user_data = $result->fetch_assoc();
     }
     $stmt->close();
 }
@@ -168,7 +169,19 @@ if (isset($_SESSION['user_id'])) {
         <div class="nav-links">
             <a href="#">Get Started</a>
             <a href="#">Learn</a>
-            <a href="quiz.php">Practice</a>
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="#" id="practiceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Practice
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                    <li><a class="dropdown-item" href="mcq_quiz.php">Mini Quiz</a></li>
+                    <li><a class="dropdown-item" href="basic_python.php">Python Quiz</a></li>
+                    <li><a class="dropdown-item" href="ctf_challenges.php">Capture The Flag</a></li>
+                    <li><a class="dropdown-item" href="forensics_challenge.php">Forensics Challenge</a></li>
+                    
+                </ul>
+            </div>
+
             <a href="#">Compete</a>
 
             <div class="dropdown">
@@ -282,6 +295,16 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
+                <div class="col-md-6 col-lg-6">
+                    <div class="card site-card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">CTF Challenges</h3>
+                            <p class="card-text">Try to find and retrieve secret "flags" within purposefully vulnerable systems or applications.</p>
+                            <a href="ctf_challenges.php" class="btn btn-primary card-btn">Attempts</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!-- Center the Community card using offset in a new row -->
             <div class="row">
@@ -309,28 +332,29 @@ if (isset($_SESSION['user_id'])) {
             
             if (userData && userData.user_id) {
                 // User is logged in - show profile dropdown
-                authSection.innerHTML = `
-                    <div class="profile-dropdown" id="profileDropdown">
-                        <button class="profile-button" onclick="toggleProfileDropdown()">
-                            <div class="profile-avatar">
-                                ${userData.name.charAt(0).toUpperCase()}
-                            </div>
-                            ${userData.name}
-                            <span style="font-size: 10px;">▼</span>
-                        </button>
-                        <div class="profile-dropdown-content" id="profileDropdownContent">
-                            <div class="user-info">
-                                <div class="user-name">${userData.name}</div>
-                                <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
-                            </div>
-                            <a href="user_profile.php">My Profile</a>
-                            <a href="dashboard.php">Dashboard</a>
-                            <a href="settings.php">Settings</a>
-                            <a href="progress.php">My Progress</a>
-                            <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
-                        </div>
+            authSection.innerHTML = `
+                <div class="profile-dropdown" id="profileDropdown">
+                 <button class="profile-button" onclick="toggleProfileDropdown()">
+                     <div class="profile-avatar">
+                         ${userData.name.charAt(0).toUpperCase()}
+                     </div>
+                        ${userData.name}
+                      <span style="font-size: 10px;">▼</span>
+                   </button>
+                   <div class="profile-dropdown-content" id="profileDropdownContent">
+                       <div class="user-info">
+                           <div class="user-name">${userData.name}</div>
+                          <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
+                       </div>
+                      <a href="user_profile.php">My Profile</a>
+                       <a href="dashboard.php">Dashboard</a>
+                      <a href="settings.php">Settings</a>
+                      <a href="progress.php">My Progress</a>
+                       ${userData.user_role === 'admin' ? `<a href="admin_dashboard.php">Admin Dashboard</a>` : ''}
+                       <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
                     </div>
-                `;
+              </div>
+            `;
                 
                 // Update welcome message
                 welcomeMessage.textContent = `Welcome back, ${userData.name}! Ready to continue your cybersecurity journey?`;
