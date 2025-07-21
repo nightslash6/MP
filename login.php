@@ -312,11 +312,11 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
         <h1>Welcome Back</h1>
 
         <?php if (!empty($success_message)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+            <div class="success-message" id="successMessage"><?php echo htmlspecialchars($success_message); ?></div>
         <?php endif; ?>
 
         <?php if (!empty($errors['general'])): ?>
-            <div class="general-error"><?php echo htmlspecialchars($errors['general']); ?></div>
+            <div class="general-error" id="errorMessage"><?php echo htmlspecialchars($errors['general']); ?></div>
         <?php endif; ?>
 
                
@@ -374,7 +374,22 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             if (emailField.value === '') {
                 emailField.focus();
             }
-        });
+
+            const success = document.getElementById('successMessage');
+            const error = document.getElementById('errorMessage');
+
+            if (success || error) {
+                // Clear input fields
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    if (success) success.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                }, 3000);
+            }
+         });
     </script>
 </body>
 </html>
