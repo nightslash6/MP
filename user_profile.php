@@ -4,37 +4,65 @@ session_regenerate_id(true);
 
 require 'config.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
-$UserRecord = null;
+$success_message = '';
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+$update_errors = [];
 
-function getUserRecord($user_id){
+function getUserRecord($user_id) {
     $conn = db_connect();
-    $stmt = $conn->prepare("SELECT name, email, phone_number FROM users WHERE user_id=?");
+    $stmt = $conn->prepare("SELECT name, email, phone_number FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    $record = null;
-    if ($result->num_rows > 0) {
-        $record = $result->fetch_assoc();
-    }
-    
+    $record = $result->fetch_assoc();
     $stmt->close();
     $conn->close();
-    
     return $record;
 }
 
-// Fetch user record
+$isEditing = isset($_GET['edit']) || (isset($_POST['save']));
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+    $conn = db_connect();
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $update_errors[] = 'Invalid email format.';
+    }
+
+    if (!preg_match('/^\d{8}$/', $phone)) {
+        $update_errors[] = 'Phone number must be exactly 8 digits and contain only numbers.';
+    }
+
+    if (empty($update_errors)) {
+        $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone_number=? WHERE user_id=?");
+        $stmt->bind_param("sssi", $name, $email, $phone, $user_id);
+        if ($stmt->execute()) {
+            $_SESSION['success_message'] = 'Profile updated successfully.';
+            header("Location: user_profile.php");
+            exit();
+        } else {
+            $update_errors[] = 'Failed to update profile.';
+        }
+        $stmt->close();
+    }
+
+    $conn->close();
+}
+
 $UserRecord = getUserRecord($user_id);
 
-// If no record found, redirect to login
 if (!$UserRecord) {
     session_destroy();
     header("Location: login.php");
@@ -46,56 +74,34 @@ if (!$UserRecord) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Cybersite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            min-height: 100vh;
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgb(82, 139, 205), rgb(107, 89, 189));
+            background: linear-gradient(#528BCD, #6B59BD);
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             padding: 20px;
+            margin: 0;
         }
 
         .profile-container {
             max-width: 500px;
             width: 100%;
-            padding: 40px;
             background: white;
+            padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             text-align: center;
-        }
-
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #5F9EA0 0%, #40826D 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 32px;
-            color: white;
-            margin: 0 auto 20px auto;
         }
 
         h1 {
             font-size: 28px;
-            font-weight: 600;
-            color: #333;
             margin-bottom: 30px;
-            text-align: center;
+            color: #333;
         }
 
         .user-info {
@@ -103,56 +109,46 @@ if (!$UserRecord) {
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-        }
-
-        .profile_display {
             text-align: left;
         }
 
         label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 500;
             color: #555;
-            margin-bottom: 8px;
-            display: block;
         }
 
-        input {
+        input[type="text"], input[type="email"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
             margin-bottom: 15px;
-            transition: border-color 0.3s ease;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         input[readonly] {
-            background-color: #f5f5f5;
+            background-color: #eee;
             cursor: not-allowed;
-            color: #333;
         }
 
         .button-container {
-            margin-top: 30px;
+            margin-top: 20px;
             display: flex;
             gap: 15px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .home-button, .edit-button {
-            text-decoration: none;
             padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 16px;
             font-weight: bold;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s ease;
         }
 
         .home-button {
-            background: #5F9EA0; /* cadet blue */
+            background: #5F9EA0;
             color: white;
         }
 
@@ -161,7 +157,7 @@ if (!$UserRecord) {
         }
 
         .edit-button {
-            background: #90EE90; /* light green */
+            background: #90EE90;
             color: #333;
         }
 
@@ -169,16 +165,34 @@ if (!$UserRecord) {
             background: #7FDD7F;
         }
 
+        .success-message, .general-error {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .general-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 480px) {
             .profile-container {
                 padding: 30px 20px;
             }
-            
+
             .button-container {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .home-button, .edit-button {
                 width: 100%;
                 max-width: 200px;
@@ -187,39 +201,69 @@ if (!$UserRecord) {
     </style>
 </head>
 <body>
-    <div class="profile-container">
-        <div class="profile-avatar">
-            <?php echo strtoupper(substr($UserRecord['name'], 0, 1)); ?>
-        </div>
-        
-        <h1>Personal Information</h1>
+<div class="profile-container">
+    <h1>Personal Information</h1>
 
+    <?php if (!empty($success_message)): ?>
+        <div class="success-message" id="msg-success"><?php echo htmlspecialchars($success_message); ?></div>
+    <?php endif; ?>
+
+    <?php if (!empty($update_errors)): ?>
+        <div class="general-error" id="msg-error">
+            <?php foreach ($update_errors as $error): ?>
+                <div><?php echo htmlspecialchars($error); ?></div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="post" onsubmit="return validateForm()">
         <div class="user-info">
-            <div class="profile_display">
-                <label for="name">Username:</label>
-                <input type="text" id="name" name="name" readonly value="<?php echo htmlspecialchars($UserRecord['name']); ?>">
-        
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" readonly value="<?php echo htmlspecialchars($UserRecord['email']); ?>">
-            
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" readonly value="<?php echo htmlspecialchars($UserRecord['phone_number'] ?? 'Not provided'); ?>">
-            </div>
+            <label for="name">Username:</label>
+            <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($UserRecord['name']); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($UserRecord['email']); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
+
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" maxlength="8" value="<?php echo htmlspecialchars($UserRecord['phone_number'] ?? ''); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
         </div>
 
         <div class="button-container">
-            <a href="main.php" class="home-button">← Back to Home</a>
-            <button type="button" class="edit-button" onclick="enableEdit()">Edit Profile</button>
+            <button type="button" class="home-button" onclick="goHome()">← Back to Home</button>
+            <?php if ($isEditing): ?>
+                <button type="submit" name="save" class="edit-button">Save</button>
+            <?php else: ?>
+                <button type="button" class="edit-button" onclick="enableEdit()">Edit Profile</button>
+            <?php endif; ?>
         </div>
-    </div>
+    </form>
+</div>
 
-    <script>
-        function enableEdit() {
-            // This function can be expanded to allow editing
-            alert('Edit functionality can be implemented here');
-            // You could redirect to an edit profile page or enable inline editing
-            // window.location.href = 'edit_profile.php';
+<script>
+    function enableEdit() {
+        window.location.href = "user_profile.php?edit=1";
+    }
+
+    function goHome() {
+        window.location.href = 'main.php';
+    }
+
+    setTimeout(() => {
+        const msg = document.getElementById('msg-success') || document.getElementById('msg-error');
+        if (msg) msg.style.display = 'none';
+    }, 3000);
+
+    function validateForm() {
+        const phoneInput = document.getElementById("phone").value;
+        const phonePattern = /^\d{8}$/;
+
+        if (!phonePattern.test(phoneInput)) {
+            alert("Phone number must be exactly 8 digits and contain only numbers.");
+            return false;
         }
-    </script>
+
+        return true;
+    }
+</script>
 </body>
 </html>
