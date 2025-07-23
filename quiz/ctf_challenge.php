@@ -19,13 +19,14 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>CTF Challenges</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="ctf.css">
     <!-- Optionally include icons from Font Awesome or Bootstrap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <header class="top-header" id="topHeader">
         <h1>Welcome to CTF Challenges</h1>
+        <a href="main.php" class="top-right-button">🏠Back to main</a>
     </header>
 
 <div class="dashboard-container">

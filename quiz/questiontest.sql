@@ -99,7 +99,6 @@ VALUES
 INSERT INTO challenges (title, difficulty, category, flag, description, solves, question) VALUES
 ('CSRF Token Bypass', 'Easy', 'Web Exploitation', 'cybersite{csrf_token_not_verified}', 'Craft a POST request without CSRF token.', 5, 'The site uses CSRF protection. Can you find a way to submit a request without the token?'),
 ('Guess the ID', 'Easy', 'Web Exploitation', 'cybersite{predictable_ids_are_dangerous}', 'Use IDOR to access unauthorized data.', 94, 'User IDs are numeric and predictable. Can you access someone else's profile?'),
-('Trust Issues', 'Easy', 'Web Exploitation', 'cybersite{never_trust_user_input}', 'Exploit reflected XSS through unsanitized input.', 40, 'The site echoes back your input. Is there a way to make it run code? (XSS?)'),
 ('Upload Madness', 'Easy', 'Web Exploitation', 'cybersite{webshell_uploaded}', 'Upload a web shell bypassing file validation.', 63, 'You can upload files, but not all types. Can you upload something malicious?'),
 ('Robot Spy', 'Easy', 'Web Exploitation', 'cybersite{robots_txt_reveals_secret}', 'Access hidden directory listed in robots.txt.', 74, 'Robots.txt isn’t meant for your eyes... but maybe it hides something interesting?'),
 ('View Source', 'Easy', 'Web Exploitation', 'cybersite{always_view_source}', 'Reveal flag in source code comment.', 87, 'Everything looks normal — but have you checked the source code of the page?'),
@@ -107,3 +106,7 @@ INSERT INTO challenges (title, difficulty, category, flag, description, solves, 
 ('Include Me', 'Easy', 'Web Exploitation', 'cybersite{lfi_pwned}', 'Exploit LFI to read sensitive files.', 96, 'Can you trick the site into loading local files on the server? (LFI Challenge)'),
 ('Auth Skip', 'Easy', 'Web Exploitation', 'cybersite{bypass_logic_flaw}', 'Bypass login using SQL logic flaw.', 250, 'Bypass the login logic using a simple trick — no credentials needed.'),
 ('JavaScript Ninja', 'Easy', 'Web Exploitation', 'cybersite{js_debugger_reveals_flag}', 'Use browser dev tools to find JS variable.', 123, 'Inspect the browser console and debug tools — maybe there's something hiding in JS?');
+
+-- ACCESS BASED CONTROL --
+ALTER TABLE users
+ADD COLUMN user_role ENUM('student','admin') DEFAULT 'student' AFTER phone_number;

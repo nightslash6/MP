@@ -1,3 +1,1 @@
-<?php
-echo "cybersite{webshell_uploaded}";
-?>
+flag "cybersite{webshell_uploaded}"

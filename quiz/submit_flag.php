@@ -70,6 +70,11 @@ if ($isCorrect) {
         <?= $isCorrect ? "✅ Correct! Flag captured." : "❌ Incorrect flag." ?>
     </div>
 
+    <!-- Back Button -->
+    <?php if ($isCorrect): ?>
+        <a href="ctf_challenge.php" class="back-button">← Back to Challenges</a>
+    <?php endif; ?>
+
     <?php if (!$isCorrect): ?>
         <div class="try-again">
             <form action="challenge.php?id=<?= $cid ?>" method="get">
@@ -78,6 +83,7 @@ if ($isCorrect) {
             </form>
         </div>
     <?php endif; ?>
+    <link rel="stylesheet" href="test.css">
 </body>
 </html>
 
