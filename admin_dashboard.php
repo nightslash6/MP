@@ -3,6 +3,7 @@ session_start();
 require 'config.php';
 $conn = db_connect();
 
+// Fetch user data
 $user_data = null;
 if (isset($_SESSION['user_id'])) {
     $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
@@ -14,119 +15,109 @@ if (isset($_SESSION['user_id'])) {
     }
     $stmt->close();
 }
+$GLOBALS['user_data'] = $user_data;
 
-$resultUsers = $conn->query("SELECT COUNT(*) AS total_users FROM users");
-$rowUsers = $resultUsers->fetch_assoc();
-$totalUsers = $rowUsers['total_users'];
-
-$resultQuestions = $conn->query("SELECT COUNT(*) AS total_questions FROM questions");
-$rowQuestions = $resultQuestions->fetch_assoc();
-$totalQuestions = $rowQuestions['total_questions'];
+// Dashboard metrics
+$totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()['count'];
+$totalQuestions = $conn->query("SELECT COUNT(*) AS count FROM questions")->fetch_assoc()['count'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="mstyles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        .navbar {
-            background-color: #2c2f48;
-            padding: 10px 20px;
+        .dashboard-header {
+            background: linear-gradient(135deg, #4a47a3, #6f9bb6);
             color: white;
+            padding: 2rem;
+            border-radius: 10px;
         }
-        .logo-text {
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transition: 0.3s ease;
         }
-        .nav-links a {
-            color: white;
-            margin-left: 15px;
-            text-decoration: none;
+        .card:hover {
+            transform: translateY(-4px);
         }
-        .nav-links a:hover {
-            text-decoration: underline;
+        .section-title {
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
         }
-        .container { margin-top: 60px; }
-        .card { border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .card:hover { transform: translateY(-3px); transition: 0.3s; }
-        .dashboard-header { background: linear-gradient(45deg, #4a47a3, #709fb0); color: white; padding: 2rem; border-radius: 8px; }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">
-            <a href="main.php" class="logo-text">Cybersite Admin</a>
-        </div>
-        <div class="nav-links">
-            <a href="main.php">Main Site</a>
-            <a href="logout.php">Logout</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <div class="dashboard-header mb-4">
-            <h1>Welcome, Admin</h1>
-            <p>Manage your platform easily from this dashboard.</p>
-        </div>
+<?php include 'navbar.php'; ?>
 
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Users</h5>
-                        <p class="display-6"><?= $totalUsers ?></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Challenges</h5>
-                        <p class="display-6"><?= $totalQuestions ?></p>
-                    </div>
+<div class="container mt-5">
+    <div class="dashboard-header mb-4">
+        <h1 class="mb-1">Welcome, Admin</h1>
+        <p class="mb-0">Manage users, questions, and categories from one place.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="display-6"><?= $totalUsers ?></p>
                 </div>
             </div>
         </div>
-
-        <h3 class="mt-5 mb-3">Category Admin Pages</h3>
-        <div class="row g-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Forensics (Shayaan)</h5>
-                        <a href="shayaan_admin_manage.php" class="btn btn-secondary mt-2">Manage</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Crypto (Shayaan)</h5>
-                        <a href="shayaan_admin_manage.php#cryptoTab" class="btn btn-secondary mt-2">Manage</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">CTF (Chee Chong)</h5>
-                        <a href="chee_ctf_admin.php" class="btn btn-secondary mt-2">Manage</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Python (Shu Xuan)</h5>
-                        <a href="shu_python_admin.php" class="btn btn-secondary mt-2">Manage</a>
-                    </div>
+        <div class="col-md-6">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Challenges</h5>
+                    <p class="display-6"><?= $totalQuestions ?></p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Categories -->
+    <h3 class="section-title">Category Admin Pages</h3>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">Forensics<br><small>(Shayaan)</small></h5>
+                    <a href="forensics_admin_manage.php" class="btn btn-outline-primary mt-2">Manage</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">MCQ</h5>
+                    <a href="crypto_admin_manage.php#cryptoTab" class="btn btn-outline-primary mt-2">Manage</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">CTF<br><small>(Chee Chong)</small></h5>
+                    <a href="_ctf_admin.php" class="btn btn-outline-primary mt-2">Manage</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center py-4">
+                <div class="card-body">
+                    <h5 class="card-title">Python<br><small>(Shu Xuan)</small></h5>
+                    <a href="_python_admin.php" class="btn btn-outline-primary mt-2">Manage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
