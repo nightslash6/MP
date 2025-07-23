@@ -1,0 +1,93 @@
+<?php
+session_start();
+require 'config.php';
+
+$conn = db_connect();
+
+// ✅ (Optional) Access Control
+// Uncomment before going live
+// if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+//     header("Location: login.php");
+//     exit;
+// }
+
+// Fetch statistics
+$resultUsers = $conn->query("SELECT COUNT(*) AS total_users FROM users");
+$rowUsers = $resultUsers->fetch_assoc();
+$totalUsers = $rowUsers['total_users'];
+
+$resultQuestions = $conn->query("SELECT COUNT(*) AS total_questions FROM questions");
+$rowQuestions = $resultQuestions->fetch_assoc();
+$totalQuestions = $rowQuestions['total_questions'];
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="mstyles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { margin-top: 60px; }
+        .card { border: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card:hover { transform: translateY(-3px); transition: 0.3s; }
+        .dashboard-header { background: linear-gradient(45deg, #4a47a3, #709fb0); color: white; padding: 2rem; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <a href="main.php" class="logo-text">CyberCTF Admin</a>
+        </div>
+        <div class="nav-links">
+            <a href="main.php">Dashboard</a>
+            <a href="logout.php">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header mb-4">
+            <h1>Welcome, Admin</h1>
+            <p>Manage your platform easily from this dashboard.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Users</h5>
+                        <p class="display-6"><?= $totalUsers ?></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Challenges</h5>
+                        <p class="display-6"><?= $totalQuestions ?></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Challenges</h5>
+                        <a href="admin.php" class="btn btn-primary mt-2">View</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Users</h5>
+                        <a href="admin_users.php" class="btn btn-primary mt-2">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future sections can go here -->
+
+    </div>
+</body>
+</html>
