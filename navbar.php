@@ -128,6 +128,15 @@ if (isset($_SESSION['user_id'])) {
         </style>
     
  </body>
+ <!-- Loading overlay for logout -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="logout-spinner">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Logging out...</span>
+            </div>
+            <div class="mt-2">Logging out...</div>
+        </div>
+    </div>
     <nav class="navbar">
         <div class="logo">
             <svg height="40" width="40" viewBox="0 0 100 100">
@@ -215,6 +224,43 @@ if (isset($_SESSION['user_id'])) {
             }
         }
 
+        function handleLogout(event) {
+            event.preventDefault();
+            const overlay = document.getElementById('logoutOverlay');
+            overlay.style.display = 'flex';
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+            setTimeout(function() {
+                window.location.href = 'logout.php';
+            }, 500);
+        }
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+
         document.addEventListener('DOMContentLoaded', updateNavigation);
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+            // Keyboard support for dropdown
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
 </script>
 
