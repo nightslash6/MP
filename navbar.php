@@ -1,5 +1,17 @@
  <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
- 
+<?php
+$user_data = null;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+    $user_data = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
+?>
  <!DOCTYPE html>
  <html lang="en">
  <head>
@@ -124,7 +136,7 @@
                 <path d="M 30 50 L 70 50" stroke="white" stroke-width="5" />
                 <path d="M 50 30 L 50 70" stroke="white" stroke-width="5" />
             </svg>
-            <a href="#" class="logo-text">Cybersite</a>
+            <a href="main.php" class="logo-text">Cybersite</a>
         </div>
         <div class="nav-links">
             <a href="#">Get Started</a>
@@ -158,6 +170,51 @@
             <div id="auth-section">
                 <!-- Content will be populated by JavaScript -->
             </div>
+
+         
         </div>
     </nav>
  </html>
+ <script>
+    const userData = <?php echo json_encode($user_data); ?>;
+    function updateNavigation() {
+            const authSection = document.getElementById('auth-section');
+         
+            
+            if (userData && userData.user_id) {
+                // User is logged in - show profile dropdown
+            authSection.innerHTML = `
+                <div class="profile-dropdown" id="profileDropdown">
+                 <button class="profile-button" onclick="toggleProfileDropdown()">
+                     <div class="profile-avatar">
+                         ${userData.name.charAt(0).toUpperCase()}
+                     </div>
+                        ${userData.name}
+                      <span style="font-size: 10px;">▼</span>
+                   </button>
+                   <div class="profile-dropdown-content" id="profileDropdownContent">
+                       <div class="user-info">
+                           <div class="user-name">${userData.name}</div>
+                          <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
+                       </div>
+                      <a href="user_profile.php">My Profile</a>
+                       <a href="dashboard.php">Dashboard</a>
+                      <a href="settings.php">Settings</a>
+                      <a href="progress.php">My Progress</a>
+                       ${userData.user_role === 'admin' ? `<a href="admin_dashboard.php">Admin Dashboard</a>` : ''}
+                       <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
+                    </div>
+              </div>
+            `;
+                
+            
+            } else {
+                // User is not logged in - show login button
+                authSection.innerHTML = `<a href="login.php">Log In</a>`;
+              
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateNavigation);
+</script>
+
