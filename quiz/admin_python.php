@@ -1,15 +1,23 @@
 <?php
 session_start();
 require 'config.php';
-
-// Check if admin is logged in (uncomment when ready)
 /*
-if (!isset($_SESSION['admin_logged_in'])) {
+// Check if user is logged in and get user data
+$user_data = null;
+if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $user_data = $result->fetch_assoc();
+    }
+    $stmt->close();
+}else{
     header('Location: login.php');
     exit;
 }
 */
-
 $message = [
     'successful' => '',
     'unsuccessful' => ''
@@ -419,7 +427,10 @@ if (empty($_SESSION['csrf_token'])) {
     </style>
 </head>
 <body>
+    <nav class="fixed-top"><?php include 'navbar.php'; ?></nav>
+
     <div class="admin-container">
+
         <h1>Python Learning Admin Panel</h1>
 
         <?php if (!empty($message['successful'])): ?>
