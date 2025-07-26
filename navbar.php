@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
  <?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+=======
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+>>>>>>> Stashed changes
 <?php
 $user_data = null;
 if (isset($_SESSION['user_id'])) {

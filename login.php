@@ -31,14 +31,14 @@ function login_user($email, $password, &$errors) {
     }
 
     // Fetch user data from the database
-    $stmt = $conn->prepare("SELECT user_id, name, password_hash FROM users WHERE email = ?"); 
+    $stmt = $conn->prepare("SELECT user_id, name, password_hash, user_role FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     // Check if a user was found
     if ($stmt->num_rows === 1) {
-        $stmt->bind_result($user_id, $name, $password_hash);
+        $stmt->bind_result($user_id, $name, $password_hash, $user_role);
         $stmt->fetch();
 
         if (password_verify($password, $password_hash)) {
@@ -50,6 +50,7 @@ function login_user($email, $password, &$errors) {
             $_SESSION['name'] = $name;
             $_SESSION['email'] = $email;
             $_SESSION['login_time'] = time();
+            $_SESSION['user_role'] = $user_role;
 
             $stmt->close();
             $conn->close();
@@ -140,48 +141,41 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Cambria', serif;
         }
 
         body {
-            background: url('login_background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            height: 100vh;
-            backdrop-filter: blur(5px);
-            padding-left: 190px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgb(82, 139, 205),rgb(107, 89, 189));
         }
 
         .login-container {
-            background: #088f8f;
-            padding: 70px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 450px;
-            position: relative;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;           
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 600;
-            color: #000;
-            margin-bottom: 20px;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
         .form-group {
-            text-align: left;
-            margin-bottom: 15px;
+           margin-bottom: 20px;
         }
 
         label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #000;
+           font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
             display: block;
-            margin-bottom: 5px;
         }
 
         input[type="text"], input[type="email"], input[type="password"] {
@@ -228,7 +222,7 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
         }
 
         .links a {
-            color: #9FE2BF;
+            color:rgb(20, 117, 67);
             text-decoration: none;
             font-weight: bold;
         }
@@ -290,7 +284,7 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
 
         .forgot-link a {
             font-size: 12px;
-            color: #9FE2BF;
+            color:rgb(20, 117, 67);
             text-decoration: none;
         }
 
@@ -318,11 +312,11 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
         <h1>Welcome Back</h1>
 
         <?php if (!empty($success_message)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+            <div class="success-message" id="successMessage"><?php echo htmlspecialchars($success_message); ?></div>
         <?php endif; ?>
 
         <?php if (!empty($errors['general'])): ?>
-            <div class="general-error"><?php echo htmlspecialchars($errors['general']); ?></div>
+            <div class="general-error" id="errorMessage"><?php echo htmlspecialchars($errors['general']); ?></div>
         <?php endif; ?>
 
                
@@ -347,7 +341,7 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
                     <button type="button" onclick="togglePassword()" tabindex="-1">👁️</button>
                 </div>
                 <div class="forgot-link">
-                    <a href="forgot_password_email.php">Forgot password?</a>
+                    <b><a href="forgot_password_email.php">Forgot password?</a></b>
                 </div>
             </div>
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
@@ -380,7 +374,22 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
             if (emailField.value === '') {
                 emailField.focus();
             }
-        });
+
+            const success = document.getElementById('successMessage');
+            const error = document.getElementById('errorMessage');
+
+            if (success || error) {
+                // Clear input fields
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    if (success) success.style.display = 'none';
+                    if (error) error.style.display = 'none';
+                }, 3000);
+            }
+         });
     </script>
 </body>
 </html>
