@@ -221,6 +221,8 @@ if (empty($_SESSION['csrf_token'])) {
         }
 
         body {
+            padding-top: 90px; /*makes admin container fit in the page, with a little space at the top (below navbar)*/ 
+            padding-bottom: 30px; /*and bottom*/
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(rgb(82, 139, 205), rgb(107, 89, 189));
