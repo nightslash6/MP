@@ -3,7 +3,7 @@ session_start();
 require 'config.php';
 
 $conn = db_connect();
-/*
+
 $user_data = null;
 if (isset($_SESSION['user_id'])) {
     $stmt = $conn->prepare("SELECT user_id, name, email FROM users WHERE user_id = ?");
@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
-*/
+
 // Fetch all Python topics from database
 $stmt = $conn->prepare("SELECT * FROM python");
 $stmt->execute();

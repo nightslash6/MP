@@ -1,7 +1,7 @@
 <?php
 session_start();
 require 'config.php';
-/*
+
 // Check if user is logged in and get user data
 $user_data = null;
 if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
@@ -17,7 +17,7 @@ if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
     header('Location: login.php');
     exit;
 }
-*/
+
 $message = [
     'successful' => '',
     'unsuccessful' => ''
