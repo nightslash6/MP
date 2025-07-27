@@ -111,7 +111,7 @@ $totalQuestions = $conn->query("SELECT COUNT(*) AS count FROM questions")->fetch
             <div class="card text-center py-4">
                 <div class="card-body">
                     <h5 class="card-title">Python<br><small>(Shu Xuan)</small></h5>
-                    <a href="_python_admin.php" class="btn btn-outline-primary mt-2">Manage</a>
+                    <a href="admin_python.php" class="btn btn-outline-primary mt-2">Manage</a>
                 </div>
             </div>
         </div>
