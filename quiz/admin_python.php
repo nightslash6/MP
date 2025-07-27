@@ -427,6 +427,8 @@ if (empty($_SESSION['csrf_token'])) {
     </style>
 </head>
 <body>
+    <nav class="fixed-top"><?php include 'navbar.php'; ?></nav>
+
     <div class="admin-container">
 
         <h1>Python Learning Admin Panel</h1>
