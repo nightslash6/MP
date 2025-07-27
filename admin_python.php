@@ -363,7 +363,7 @@ if (empty($_SESSION['csrf_token'])) {
             border-radius: 5px;
             text-align: center;
             position: fixed;
-            top: 20px;
+            top: 90px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
