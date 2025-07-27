@@ -117,14 +117,7 @@ while ($row = $sub_result->fetch_assoc()) {
       align-items: center;
       width: 100%;
     }
-
-    .dropdown-toggle {
-      cursor: pointer;
-      padding: 10px;
-      font-size: 14px;
-      user-select: none;
-    }
-
+    
     .content {
       flex-grow: 1;
       padding: 2rem;
