@@ -2,6 +2,8 @@
 session_start();
 require 'config.php';
 
+$conn = db_connect();
+
 // Check if user is logged in and get user data
 $user_data = null;
 if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
