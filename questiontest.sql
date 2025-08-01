@@ -214,3 +214,69 @@ COMMIT;
 -- ACCESS BASED CONTROL --
 ALTER TABLE users 
 ADD COLUMN user_role ENUM('student','admin') DEFAULT 'student' AFTER phone_number;
+
+CREATE TABLE `python` (
+  `python_id` int(11) NOT NULL,
+  `topic` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `example` text DEFAULT NULL,
+  `question` text DEFAULT NULL,
+  `answer` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `python`
+--
+
+INSERT INTO `python` (`python_id`, `topic`, `content`, `example`, `question`, `answer`) VALUES
+(5, 'Strings', 'Strings are defined by enclosing the sequence of characters within either single quotes, double quotes, or triple quotes in a print() function. ', 'print(\"Hello World\")', 'Print a string.', ''),
+(7, 'Variables', 'Variables are symbolic names that act as containers for storing data values. Variables are created the moment you first assign a value to them using the assignment operator (=).      \r\n', 'age = 30\r\nname = \"John\"', 'Assign a variable, x ,a value and print it out.', ''),
+(8, 'Conditions', 'Python supports the usual logical conditions from mathematics.\r\nEquals: a == b\r\nNot Equals: a != b\r\nLess than: a < b\r\nLess than or equal to: a <= b\r\nGreater than: a > b\r\nGreater than or equal to: a >= b\r\nThese conditions can be used in several ways, most commonly in \"if statements\" and loops.', '', '', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `python_subtopics`
+--
+
+CREATE TABLE `python_subtopics` (
+  `subtopic_id` int(11) NOT NULL,
+  `python_id` int(11) NOT NULL,
+  `subtopic_title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `example` text DEFAULT NULL,
+  `question` text DEFAULT NULL,
+  `answer` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `python_subtopics`
+--
+
+INSERT INTO `python_subtopics` (`subtopic_id`, `python_id`, `subtopic_title`, `content`, `example`, `question`, `answer`) VALUES
+(4, 7, 'Variable Names', 'A variable can have a short name (like x and y) or a more descriptive name (age, carname, total_volume).\r\nRules for Python variables:\r\n-A variable name must start with a letter or the underscore character\r\n-A variable name cannot start with a number\r\n-A variable name can only contain alpha-numeric characters and underscores (A-z, 0-9, and _ )\r\n-Variable names are case-sensitive (age, Age and AGE are three different variables)\r\n-A variable name cannot be any of the Python keywords.    ', 'Legal variable names:\r\nmyvar = \"John\"\r\nmy_var = \"John\"\r\n_my_var = \"John\"\r\nmyVar = \"John\"\r\nMYVAR = \"John\"\r\nmyvar2 = \"John\"\r\n\r\nIllegal variable names:\r\n2myvar = \"John\"\r\nmy-var = \"John\"\r\nmy var = \"John\"\r\n', '', ''),
+(5, 7, 'Assign Multiple Values', 'Python allows you to assign values to multiple variables in one line.', 'x, y, z = \"Orange\", \"Banana\", \"Cherry\"\r\nprint(x)\r\nprint(y)\r\nprint(z)', '', ''),
+(7, 5, 'String Concatenation', 'To concatenate, or combine, two strings you can use the + operator.', 'Merge variable a with variable b into variable c:\r\na = \"Hello\"\r\nb = \"World\"\r\nc = a + b\r\nprint(c)\r\n\r\nTo add a space between them, add a \" \":\r\na = \"Hello\"\r\nb = \"World\"\r\nc = a + \" \" + b\r\nprint(c)', '', ''),
+(11, 8, 'If statements', 'An \"if statement\" is written by using the if keyword.', 'a = 33\r\nb = 200\r\nif b > a:\r\n  print(\"b is greater than a\")', '', ''),
+(12, 8, 'Indentation', 'Python relies on indentation (whitespace at the beginning of a line) to define scope in the code. Other programming languages often use curly-brackets for this purpose.', 'If statement, without indentation (will raise an error):\r\na = 33\r\nb = 200\r\nif b > a:\r\nprint(\"b is greater than a\") # you will get an error', '', '');
+
+-- --------------------------------------------------------
+
+-- Indexes for table `python`
+--
+ALTER TABLE `python`
+  ADD PRIMARY KEY (`python_id`);
+
+--
+-- Indexes for table `python_subtopics`
+--
+ALTER TABLE `python_subtopics`
+  ADD PRIMARY KEY (`subtopic_id`),
+  ADD KEY `python_id` (`python_id`);
+
+--
+-- Constraints for table `python_subtopics`
+--
+ALTER TABLE `python_subtopics`
+  ADD CONSTRAINT `python_subtopics_ibfk_1` FOREIGN KEY (`python_id`) REFERENCES `python` (`python_id`);
+COMMIT;
