@@ -211,6 +211,31 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
+
+
+
+-- My Forensics Questions Table
+CREATE TABLE IF NOT EXISTS `my_forensics_questions` (
+  question_id INT AUTO_INCREMENT PRIMARY KEY,
+  question_text TEXT NOT NULL,
+  description TEXT,
+  question_type ENUM('MCQ', 'ShortAnswer', 'LongAnswer') NOT NULL,
+  options JSON,
+  correct_answer TEXT,
+  difficulty ENUM('Beginner','Intermediate','Advanced') DEFAULT 'Beginner'
+);
+
+-- My Cryptography Questions Table
+CREATE TABLE IF NOT EXISTS `my_crypto_questions` (
+  question_id INT AUTO_INCREMENT PRIMARY KEY,
+  question_text TEXT NOT NULL,
+  description TEXT,
+  question_type ENUM('MCQ', 'ShortAnswer', 'LongAnswer') NOT NULL,
+  options JSON,
+  correct_answer TEXT,
+  difficulty ENUM('Beginner','Intermediate','Advanced') DEFAULT 'Beginner'
+);
+
 -- ACCESS BASED CONTROL --
 ALTER TABLE users 
 ADD COLUMN user_role ENUM('student','admin') DEFAULT 'student' AFTER phone_number;
