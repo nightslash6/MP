@@ -4,6 +4,22 @@ require 'config.php';
 
 $conn = db_connect();
 
+// Check if user is logged in and get user data
+$user_data = null;
+if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $user_data = $result->fetch_assoc();
+    }
+    $stmt->close();
+}else{
+    header('Location: login.php');
+    exit;
+}
+
 // Validate table parameter
 if (!isset($_GET['table']) || !in_array($_GET['table'], ['crypto', 'forensics'])) {
     die('Invalid or missing table parameter.');
@@ -62,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $conn->prepare("INSERT INTO `$table` (question_text, description, question_type, difficulty, correct_answer) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("sssss", $question_text, $description, $question_type, $difficulty, $correct_answer);
         if ($stmt->execute()) {
-            header("Location: shayaan_admin_manage.php");
+            header("Location: forensics_admin_manage.php");
             exit;
         } else {
             $message = "Error adding question.";
@@ -118,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="correct_answer" class="form-control" value="<?= htmlspecialchars($correct_answer) ?>" required>
         </div>
         <button type="submit" class="btn btn-primary"><?= $is_edit ? "Update" : "Add" ?> Challenge</button>
-        <a href="shayaan_admin_manage.php" class="btn btn-secondary">Back to Manage</a>
+        <a href="forensics_admin_manage.php" class="btn btn-secondary">Back to Manage</a>
     </form>
 </div>
 </body>

@@ -1,11 +1,12 @@
 <?php
 session_start();
 require 'config.php';
+
 $conn = db_connect();
 
 // Fetch user data
 $user_data = null;
-if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id']) && $_SESSION['user_role']==='admin') {
     $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -14,12 +15,14 @@ if (isset($_SESSION['user_id'])) {
         $user_data = $result->fetch_assoc();
     }
     $stmt->close();
+}else{
+    header("Location: login.php");
+    exit;
 }
 $GLOBALS['user_data'] = $user_data;
 
 // Dashboard metrics
 $totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()['count'];
-$totalQuestions = $conn->query("SELECT COUNT(*) AS count FROM questions")->fetch_assoc()['count'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -62,19 +65,11 @@ $totalQuestions = $conn->query("SELECT COUNT(*) AS count FROM questions")->fetch
 
     <!-- Stats -->
     <div class="row g-4">
-        <div class="col-md-6">
+        <div class="col-md-20">
             <div class="card text-center py-4">
                 <div class="card-body">
                     <h5 class="card-title">Total Users</h5>
                     <p class="display-6"><?= $totalUsers ?></p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card text-center py-4">
-                <div class="card-body">
-                    <h5 class="card-title">Total Challenges</h5>
-                    <p class="display-6"><?= $totalQuestions ?></p>
                 </div>
             </div>
         </div>
@@ -103,7 +98,7 @@ $totalQuestions = $conn->query("SELECT COUNT(*) AS count FROM questions")->fetch
             <div class="card text-center py-4">
                 <div class="card-body">
                     <h5 class="card-title">CTF<br><small>(Chee Chong)</small></h5>
-                    <a href="_ctf_admin.php" class="btn btn-outline-primary mt-2">Manage</a>
+                    <a href="admin_ctf.php" class="btn btn-outline-primary mt-2">Manage</a>
                 </div>
             </div>
         </div>

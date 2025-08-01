@@ -208,16 +208,14 @@ if (isset($_SESSION['user_id'])) {
                             <div class="user-email">${userData.email || 'ID: ' + userData.user_id}</div>
                         </div>
                         <a href="user_profile.php">My Profile</a>
-                        <a href="dashboard.php">Dashboard</a>
-                        <a href="settings.php">Settings</a>
-                        <a href="progress.php">My Progress</a>
+                        <a href="">Dashboard</a>
+                        <a href="">Settings</a>
+                        <a href="">My Progress</a>
                         ${userData.user_role === 'admin' ? `<a href="admin_dashboard.php">Admin Dashboard</a>` : ''}
                         <a href="#" onclick="handleLogout(event)" class="logout-link">Logout</a>
                         </div>
                 </div>
                 `;
-                    
-                
                 } else {
                     // User is not logged in - show login button
                     authSection.innerHTML = `<a href="login.php">Log In</a>`;
@@ -265,9 +263,6 @@ if (isset($_SESSION['user_id'])) {
             });
             
     </script>
-
-
-
 </body>
 </html>
  

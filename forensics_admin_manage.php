@@ -3,6 +3,23 @@ session_start();
 require 'config.php';
 
 $conn = db_connect();
+
+// Check if user is logged in and get user data
+$user_data = null;
+if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
+    $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $user_data = $result->fetch_assoc();
+    }
+    $stmt->close();
+}else{
+    header('Location: login.php');
+    exit;
+}
+
 $message = "";
 
 // Delete logic

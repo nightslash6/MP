@@ -1,9 +1,8 @@
 <?php
 session_start();
 require 'config.php';
-// Assuming you have a database connection set up in $conn
-$conn = db_connect();
 
+$conn = db_connect();
 
 // Check if user is logged in and get user data
 $user_data = null;
@@ -38,13 +37,14 @@ if (isset($_SESSION['user_id'])) {
     <div class="hero">    
         <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
-                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" class="active" aria-current="true" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"  aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
                 <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
             </div>
             
             <div class="carousel-inner">
-                <div class="carousel-item">
+                <div class="carousel-item active">
                     <div class="hero-content">
                         <h1>Learn Cybersecurity</h1>
                         <p>Master the fundamentals with our interactive challenges</p>
@@ -52,10 +52,10 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
                 
-                <div class="carousel-item active">
+                <div class="carousel-item">
                     <div class="hero-content">
-                        <h1>How You Can Write CTF Challenges</h1>
-                        <p>by Wei Hong</p>
+                        <h1>Learn Digital Forensics</h1>
+                        <p>Contribute to a safer digital space</p>
                         <a href="#" class="read-more-btn">Read More</a>
                     </div>
                 </div>
@@ -64,6 +64,14 @@ if (isset($_SESSION['user_id'])) {
                     <div class="hero-content">
                         <h1>Join The Competition</h1>
                         <p>Test your skills against others in our global competitions</p>
+                        <a href="ctf_info.php" class="read-more-btn">Read More</a>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="hero-content">
+                        <h1>Learn how to code in python</h1>
+                        <p>Start your coding journey with us</p>
                         <a href="ctf_info.php" class="read-more-btn">Read More</a>
                     </div>
                 </div>
@@ -104,7 +112,7 @@ if (isset($_SESSION['user_id'])) {
                         <div class="card-body">
                             <h3 class="card-title">Practice</h3>
                             <p class="card-text">Apply your skills with hands-on challenges designed to test and improve your abilities.</p>
-                            <a href="question_1.php" class="btn btn-primary card-btn">Try Challenges</a>
+                            <a href="#" class="btn btn-primary card-btn">Try Challenges</a>
                         </div>
                     </div>
                 </div>

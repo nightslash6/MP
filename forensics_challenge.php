@@ -15,6 +15,9 @@ if (isset($_SESSION['user_id'])) {
         $user_data = $result->fetch_assoc();
     }
     $stmt->close();
+}else{
+    header('Location: login.php');
+    exit;
 }
 
 // Share it globally for navbar
