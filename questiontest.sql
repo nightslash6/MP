@@ -295,6 +295,7 @@ INSERT INTO challenges (title, difficulty, category, flag, description, solves, 
 ('Auth Skip', 'Easy', 'Web Exploitation', 'cybersite{bypass_logic_flaw}', 'Bypass login using SQL logic flaw.', 250, 'Bypass the login logic using a simple trick — no credentials needed.'),
 ('JavaScript Ninja', 'Easy', 'Web Exploitation', 'cybersite{js_debugger_reveals_flag}', 'Use browser dev tools to find JS variable.', 123, 'Inspect the browser console and debug tools — maybe there's something hiding in JS?');
 
+--Python Topics Table--
 CREATE TABLE `python` (
   `python_id` int(11) NOT NULL,
   `topic` varchar(255) NOT NULL,
