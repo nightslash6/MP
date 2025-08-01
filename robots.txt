@@ -1,0 +1,7 @@
+In this 3 file path there is a flag. All the best !!!
+
+1. /notimportant/flag.txt
+
+2. /nothinghere/flag.txt
+
+3. /supersecret/flag.txt

