@@ -42,7 +42,7 @@ $subtopics = [];
 $stmt = $conn->query("SELECT ps.subtopic_id, ps.subtopic_title, p.python_id, p.topic, ps.content, ps.example, ps.question, ps.answer 
                       FROM python_subtopics ps 
                       JOIN python p ON ps.python_id = p.python_id 
-                      ORDER BY p.python_id ASC, ps.subtopic_id ASC");
+                      ORDER BY p.topic");
 if ($stmt) {
     $subtopics = $stmt->fetch_all(MYSQLI_ASSOC);
 }
