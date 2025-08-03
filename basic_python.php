@@ -245,7 +245,7 @@ while ($row = $sub_result->fetch_assoc()) {
       </div>
     <?php endforeach; ?>
 
-    <?php foreach ($subtopics_by_topic as $topic_subs): ?>
+    <?php foreach ($subtopics_by_topic as $topic_id => $topic_subs): ?>
       <?php foreach ($topic_subs as $sub): ?>
         <div id="subtab<?= $sub['subtopic_id'] ?>" class="tab-content">
           <h2><?= htmlspecialchars($sub['subtopic_title']) ?></h2>
@@ -261,9 +261,9 @@ while ($row = $sub_result->fetch_assoc()) {
 
           <h4>Try it:</h4>
           <p><?= nl2br(htmlspecialchars($sub['question'])) ?></p>
-          <textarea id="code-tab<?= $sub['subtopic_id'] ?>"></textarea>
-          <button class="run-btn" onclick="runCode('code-tab<?= $sub['subtopic_id'] ?>', 'output-tab<?= $sub['subtopic_id'] ?>')">Run Code</button>
-          <pre id="output-tab<?= $sub['subtopic_id'] ?>" class="output"></pre>
+          <textarea id="code-subtab<?= $sub['subtopic_id'] ?>"></textarea>
+          <button class="run-btn" onclick="runCode('code-subtab<?= $sub['subtopic_id'] ?>', 'output-subtab<?= $sub['subtopic_id'] ?>')">Run Code</button>
+          <pre id="output-subtab<?= $sub['subtopic_id'] ?>" class="output"></pre>
         </div>
       <?php endforeach; ?>
     <?php endforeach; ?>
