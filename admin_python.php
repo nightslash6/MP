@@ -215,157 +215,78 @@ if (empty($_SESSION['csrf_token'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Learning Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            padding-top: 90px; /*makes admin container fit in the page, with a little space at the top (below navbar)*/ 
-            padding-bottom: 30px; /*and bottom*/
-            min-height: 100vh;
+        body { 
+            background: #f5f7fa; 
+            padding-top: 70px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgb(82, 139, 205), rgb(107, 89, 189));
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
-
+        
         .admin-container {
-            max-width: 800px;
-            width: 100%;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .form-section {
-            margin-bottom: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            display: none;
         }
-
-        .form-section.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        input[type="text"], 
-        textarea, 
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-bottom: 5px;
-            transition: border-color 0.3s ease;
-        }
-
-        textarea {
-            min-height: 100px;
-            font-family: inherit;
-        }
-
-        .code {
-            font-family: monospace;
-            background-color: #f5f5f5;
-            padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
+        
+        .section-header {
+            background: linear-gradient(135deg, #4a47a3, #709fb0);
             color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin: 5px;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
         }
-
-        .btn-primary {
-            background: #5F9EA0;
+        
+        .card {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 10px;
         }
-
-        .btn-primary:hover {
-            background: #40826D;
+        
+        .table {
+            margin-bottom: 0;
         }
-
-        .btn-secondary {
-            background: #6c757d;
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
         }
-
-        .btn-secondary:hover {
-            background: #5a6268;
+        
+        .table td, .table th {
+            vertical-align: middle;
+            padding: 12px 15px;
         }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
+        
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
         }
-
-        .btn-warning:hover {
-            background: #e0a800;
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 10px 20px;
         }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
+        
+        .nav-tabs .nav-link.active {
+            color: #4a47a3;
+            background-color: transparent;
+            border-bottom: 3px solid #4a47a3;
         }
-
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+        
+        .tab-content {
+            margin-top: 1.5rem;
         }
-
-        .button-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
         }
-
+        
         .message {
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            text-align: center;
             position: fixed;
-            top: 90px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
@@ -373,60 +294,17 @@ if (empty($_SESSION['csrf_token'])) {
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             animation: fadeIn 0.3s ease-in-out;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; top: 0; }
-            to { opacity: 1; top: 20px; }
+            to { opacity: 1; top: 80px; }
         }
-
-        @keyframes fadeOut {
-            from { opacity: 1; top: 20px; }
-            to { opacity: 0; top: 0; }
-        }
-
-        .message.fade-out {
-            animation: fadeOut 0.3s ease-in-out;
-        }
-
-        .message.successful {
-            background-color: #dff0d8;
-            color: #3c763d;
-            border: 1px solid #d6e9c6;
-        }
-
-        .message.unsuccessful {
-            background-color: #f2dede;
-            color: #a94442;
-            border: 1px solid #ebccd1;
-        }
-
-        .back-button {
-            background: #6c757d;
-            margin-top: 20px;
-        }
-
-        .back-button:hover {
-            background: #5a6268;
-        }
-
-        .cancel-button {
-            background: #dc3545;
-        }
-
-        .cancel-button:hover {
-            background: #c82333;
-        }
-
-        @media (max-width: 600px) {
-            .btn-group, .button-row {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            button {
-                width: 100%;
-                max-width: 250px;
-            }
+        
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
         }
     </style>
 </head>
@@ -434,516 +312,110 @@ if (empty($_SESSION['csrf_token'])) {
     <nav class="fixed-top"><?php include 'navbar.php'; ?></nav>
 
     <div class="admin-container">
-
-        <h1>Python Learning Admin Panel</h1>
+        <div class="section-header text-center">
+            <h2>Python Learning Admin Panel</h2>
+            <p class="mb-0">Manage all Python Topics and Subtopics here.</p>
+        </div>
 
         <?php if (!empty($message['successful'])): ?>
-            <div class="message successful" id="success-message"><?php echo $message['successful']; ?></div>
+            <div class="alert alert-success alert-dismissible fade show message" role="alert">
+                <?php echo $message['successful']; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
         
         <?php if (!empty($message['unsuccessful'])): ?>
-            <div class="message unsuccessful" id="error-message"><?php echo $message['unsuccessful']; ?></div>
+            <div class="alert alert-danger alert-dismissible fade show message" role="alert">
+                <?php echo $message['unsuccessful']; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
 
-        <div class="button-container" id="main-buttons">
-            <div class="button-row">
-                <button type="button" class="btn-primary" id="show-topic-form">Add Topic</button>
-                <button type="button" class="btn-secondary" id="show-subtopic-form">Add Subtopic</button>
-            </div>
-            <div class="button-row">
-                <button type="button" class="btn-warning" id="show-edit-topic-form">Edit Topic</button>
-                <button type="button" class="btn-warning" id="show-edit-subtopic-form">Edit Subtopic</button>
-            </div>
-        </div>
-        
-        <!-- Add Topic Form -->
-        <div class="form-section" id="topic-form">
-            <h2>Add New Topic</h2>
-            <form method="POST" id="topic-form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                
-                <div class="form-group">
-                    <label for="topic_title">Python Topic:</label>
-                    <input type="text" id="topic_title" name="topic_title" required>
-                
-                    <label for="topic_content">Content:</label>
-                    <textarea id="topic_content" name="topic_content" required></textarea>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#topicsTab">📚 Topics</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#subtopicsTab">📝 Subtopics</button>
+            </li>
+        </ul>
 
-                    <label for="topic_example">Example:</label>
-                    <textarea id="topic_example" name="topic_example" class="code"></textarea>
-
-                    <label for="topic_question">Question:</label>
-                    <textarea id="topic_question" name="topic_question"></textarea>
-
-                    <label for="topic_answer">Answer:</label>
-                    <textarea id="topic_answer" name="topic_answer"></textarea>
+        <div class="tab-content">
+            <!-- Topics Tab -->
+            <div class="tab-pane fade show active" id="topicsTab">
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="add_topic.php" class="btn btn-primary">➕ Add Topic</a>
                 </div>
-                <button type="submit" name="add_topic" class="btn-primary">Save Topic</button>
-                <button type="button" class="cancel-button" id="cancel-topic">Cancel</button>
-            </form>
-        </div>
-        
-        <!-- Edit Topic Form -->
-        <div class="form-section" id="edit-topic-form">
-            <h2>Edit Topic</h2>
-            <form method="POST" id="edit-topic-form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <input type="hidden" name="edit_python_id" id="edit_python_id">
-                
-                <div class="form-group">
-                    <label for="edit_topic_select">Select Topic to Edit:</label>
-                    <select id="edit_topic_select" name="edit_topic_select" required>
-                        <option value="">-- Select a Topic --</option>
-                        <?php foreach ($topics as $topic): ?>
-                            <option value="<?php echo htmlspecialchars($topic['python_id']); ?>">
-                                <?php echo htmlspecialchars($topic['topic']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <button type="button" class="back-button" id="back-from-edit-topic-dropdown" style="margin-top: 10px; display: block;">Back</button>
-                </div>
-                
-                <div id="edit-topic-details" style="display: none;">
-                    <div class="form-group">
-                        <label for="edit_topic_title">Python Topic:</label>
-                        <input type="text" id="edit_topic_title" name="topic_title" required>
-                    
-                        <label for="edit_topic_content">Content:</label>
-                        <textarea id="edit_topic_content" name="topic_content" required></textarea>
-
-                        <label for="edit_topic_example">Example:</label>
-                        <textarea id="edit_topic_example" name="topic_example" class="code"></textarea>
-
-                        <label for="edit_topic_question">Question:</label>
-                        <textarea id="edit_topic_question" name="topic_question"></textarea>
-
-                        <label for="edit_topic_answer">Answer:</label>
-                        <textarea id="edit_topic_answer" name="topic_answer"></textarea>
-                    </div>
-                    <button type="submit" name="edit_topic" class="btn-primary">Save Changes</button>
-                    <button type="button" class="back-button" id="back-from-edit-topic">Back</button>
-                    <button type="button" class="cancel-button" id="cancel-edit-topic">Cancel</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Add Subtopic Form -->
-        <div class="form-section" id="subtopic-form">
-            <h2>Add Subtopic</h2>
-            <form method="POST" id="subtopic-form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                
-                <div class="form-group">
-                    <label for="python_id">Select Topic:</label>
-                    <select id="python_id" name="python_id" required>
-                        <option value="">-- Select a Topic --</option>
-                        <?php foreach ($topics as $topic): ?>
-                            <option value="<?php echo htmlspecialchars($topic['python_id']); ?>">
-                                <?php echo htmlspecialchars($topic['topic']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                
-                    <label for="subtopic_title">Subtopic Title:</label>
-                    <input type="text" id="subtopic_title" name="subtopic_title" required>
-            
-                    <label for="subtopic_content">Content:</label>
-                    <textarea id="subtopic_content" name="subtopic_content" required></textarea>
-              
-                    <label for="subtopic_example">Example:</label>
-                    <textarea id="subtopic_example" name="subtopic_example" class="code"></textarea>
-               
-                    <label for="subtopic_question">Question:</label>
-                    <textarea id="subtopic_question" name="subtopic_question"></textarea>
-
-                    <label for="subtopic_answer">Answer:</label>
-                    <textarea id="subtopic_answer" name="subtopic_answer"></textarea>
-                </div>
-                <button type="submit" name="add_subtopic" class="btn-primary">Save Subtopic</button>
-                <button type="button" class="cancel-button" id="cancel-subtopic">Cancel</button>
-            </form>
-        </div>
-        
-        <!-- Edit Subtopic Form -->
-        <div class="form-section" id="edit-subtopic-form">
-            <h2>Edit Subtopic</h2>
-            <form method="POST" id="edit-subtopic-form-data">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                <input type="hidden" name="edit_subtopic_id" id="edit_subtopic_id">
-                
-                <div class="form-group">
-                    <label for="edit_subtopic_select">Select Subtopic to Edit:</label>
-                    <select id="edit_subtopic_select" name="edit_subtopic_select" required>
-                        <option value="">-- Select a Subtopic --</option>
-                        <?php foreach ($subtopics as $subtopic): ?>
-                            <option value="<?php echo htmlspecialchars($subtopic['subtopic_id']); ?>" 
-                                    data-python-id="<?php echo htmlspecialchars($subtopic['python_id']); ?>"
-                                    data-topic="<?php echo htmlspecialchars($subtopic['topic']); ?>">
-                                <?php echo htmlspecialchars($subtopic['topic'] . " - " . $subtopic['subtopic_title']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <button type="button" class="back-button" id="back-from-edit-subtopic-dropdown" style="margin-top: 10px; display: block;">Back</button>
-                </div>
-                
-                <div id="edit-subtopic-details" style="display: none;">
-                    <div class="form-group">
-                        <label for="edit_subtopic_python_id">Topic:</label>
-                        <select id="edit_subtopic_python_id" name="python_id" required>
-                            <option value="">-- Select a Topic --</option>
+                <div class="card mt-3 p-3">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Topic Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($topics)): ?>
+                                <tr><td colspan="2" class="text-center no-data">No topics found.</td></tr>
+                            <?php endif; ?>
                             <?php foreach ($topics as $topic): ?>
-                                <option value="<?php echo htmlspecialchars($topic['python_id']); ?>">
-                                    <?php echo htmlspecialchars($topic['topic']); ?>
-                                </option>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($topic['topic']); ?></td>
+                                    <td>
+                                        <a href="edit_topic.php?id=<?php echo $topic['python_id']; ?>" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="delete_topic.php?id=<?php echo $topic['python_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this topic?')">Delete</a>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
-                        </select>
-                    
-                        <label for="edit_subtopic_title">Subtopic Title:</label>
-                        <input type="text" id="edit_subtopic_title" name="subtopic_title" required>
-                
-                        <label for="edit_subtopic_content">Content:</label>
-                        <textarea id="edit_subtopic_content" name="subtopic_content" required></textarea>
-                  
-                        <label for="edit_subtopic_example">Example:</label>
-                        <textarea id="edit_subtopic_example" name="subtopic_example" class="code"></textarea>
-                   
-                        <label for="edit_subtopic_question">Question:</label>
-                        <textarea id="edit_subtopic_question" name="subtopic_question"></textarea>
-
-                        <label for="edit_subtopic_answer">Answer:</label>
-                        <textarea id="edit_subtopic_answer" name="subtopic_answer"></textarea>
-                    </div>
-                    <button type="submit" name="edit_subtopic" class="btn-primary">Save Changes</button>
-                    <button type="button" class="back-button" id="back-from-edit-subtopic">Back</button>
-                    <button type="button" class="cancel-button" id="cancel-edit-subtopic">Cancel</button>
+                        </tbody>
+                    </table>
                 </div>
-            </form>
+            </div>
+
+            <!-- Subtopics Tab -->
+            <div class="tab-pane fade" id="subtopicsTab">
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="add_subtopic.php" class="btn btn-primary">➕ Add Subtopic</a>
+                </div>
+                <div class="card mt-3 p-3">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Topic Name</th>
+                                <th>Subtopic Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($subtopics)): ?>
+                                <tr><td colspan="3" class="text-center no-data">No subtopics found.</td></tr>
+                            <?php endif; ?>
+                            <?php foreach ($subtopics as $subtopic): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($subtopic['topic']); ?></td>
+                                    <td><?php echo htmlspecialchars($subtopic['subtopic_title']); ?></td>
+                                    <td>
+                                        <a href="edit_subtopic.php?id=<?php echo $subtopic['subtopic_id']; ?>" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="delete_subtopic.php?id=<?php echo $subtopic['subtopic_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this subtopic?')">Delete</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Pass PHP data to JavaScript
-        const allTopics = <?php echo json_encode($topics); ?>;
-        const allSubtopics = <?php echo json_encode($subtopics); ?>;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const mainButtons = document.getElementById('main-buttons');
-            const topicFormBtn = document.getElementById('show-topic-form');
-            const editTopicFormBtn = document.getElementById('show-edit-topic-form');
-            const subtopicFormBtn = document.getElementById('show-subtopic-form');
-            const editSubtopicFormBtn = document.getElementById('show-edit-subtopic-form');
-            
-            const topicForm = document.getElementById('topic-form');
-            const editTopicForm = document.getElementById('edit-topic-form');
-            const subtopicForm = document.getElementById('subtopic-form');
-            const editSubtopicForm = document.getElementById('edit-subtopic-form');
-            
-            const cancelTopicBtn = document.getElementById('cancel-topic');
-            const cancelEditTopicBtn = document.getElementById('cancel-edit-topic');
-            const backFromEditTopicBtn = document.getElementById('back-from-edit-topic');
-            const cancelSubtopicBtn = document.getElementById('cancel-subtopic');
-            const cancelEditSubtopicBtn = document.getElementById('cancel-edit-subtopic');
-            const backFromEditSubtopicBtn = document.getElementById('back-from-edit-subtopic');
-            
-            const editTopicSelect = document.getElementById('edit_topic_select');
-            const editTopicDetails = document.getElementById('edit-topic-details');
-            const editSubtopicSelect = document.getElementById('edit_subtopic_select');
-            const editSubtopicDetails = document.getElementById('edit-subtopic-details');
-            
-            let currentForm = null;
-            let formHasChanges = false;
-            
-            // Auto-hide messages after 5 seconds
-            const successMessage = document.getElementById('success-message');
-            const errorMessage = document.getElementById('error-message');
-            
-            function hideMessage(element) {
-                if (element) {
-                    element.classList.add('fade-out');
-                    setTimeout(() => {
-                        element.style.display = 'none';
-                    }, 300);
-                }
-            }
-            
-            if (successMessage) {
-                setTimeout(() => {
-                    hideMessage(successMessage);
-                }, 5000);
-            }
-            
-            if (errorMessage) {
-                setTimeout(() => {
-                    hideMessage(errorMessage);
-                }, 5000);
-            }
-            
-            // Show main buttons and hide all forms
-            function showMainMenu() {
-                mainButtons.style.display = 'flex';
-                topicForm.classList.remove('active');
-                editTopicForm.classList.remove('active');
-                subtopicForm.classList.remove('active');
-                editSubtopicForm.classList.remove('active');
-                currentForm = null;
-                formHasChanges = false;
-            }
-            
-            // Show topic form
-            function showTopicForm() {
-                mainButtons.style.display = 'none';
-                topicForm.classList.add('active');
-                editTopicForm.classList.remove('active');
-                subtopicForm.classList.remove('active');
-                editSubtopicForm.classList.remove('active');
-                currentForm = 'topic';
-                formHasChanges = false;
-                
-                // Reset form
-                document.getElementById('topic-form-data').reset();
-                
-                // Reset change tracking
-                const inputs = topicForm.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.addEventListener('input', () => {
-                        formHasChanges = true;
-                    });
-                });
-            }
-            
-            // Show edit topic form
-            function showEditTopicForm() {
-                mainButtons.style.display = 'none';
-                editTopicForm.classList.add('active');
-                topicForm.classList.remove('active');
-                subtopicForm.classList.remove('active');
-                editSubtopicForm.classList.remove('active');
-                currentForm = 'edit-topic';
-                formHasChanges = false;
-                
-                // Reset form
-                document.getElementById('edit-topic-form-data').reset();
-                editTopicDetails.style.display = 'none';
-                
-                // Reset change tracking
-                const inputs = editTopicForm.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.addEventListener('input', () => {
-                        formHasChanges = true;
-                    });
-                });
-            }
-            
-            // Show subtopic form
-            function showSubtopicForm() {
-                mainButtons.style.display = 'none';
-                subtopicForm.classList.add('active');
-                topicForm.classList.remove('active');
-                editTopicForm.classList.remove('active');
-                editSubtopicForm.classList.remove('active');
-                currentForm = 'subtopic';
-                formHasChanges = false;
-                
-                // Reset form
-                document.getElementById('subtopic-form-data').reset();
-                
-                // Reset change tracking
-                const inputs = subtopicForm.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.addEventListener('input', () => {
-                        formHasChanges = true;
-                    });
-                });
-            }
-            
-            // Show edit subtopic form
-            function showEditSubtopicForm() {
-                mainButtons.style.display = 'none';
-                editSubtopicForm.classList.add('active');
-                topicForm.classList.remove('active');
-                editTopicForm.classList.remove('active');
-                subtopicForm.classList.remove('active');
-                currentForm = 'edit-subtopic';
-                formHasChanges = false;
-                
-                // Reset form
-                document.getElementById('edit-subtopic-form-data').reset();
-                editSubtopicDetails.style.display = 'none';
-                
-                // Reset change tracking
-                const inputs = editSubtopicForm.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.addEventListener('input', () => {
-                        formHasChanges = true;
-                    });
-                });
-            }
-            
-            // Check before leaving form
-            function confirmLeaveForm() {
-                if (!formHasChanges) return true;
-                
-                return confirm('You have unsaved changes. Are you sure you want to leave this form?');
-            }
-            
-            // Event listeners for main buttons
-            topicFormBtn.addEventListener('click', showTopicForm);
-            editTopicFormBtn.addEventListener('click', showEditTopicForm);
-            subtopicFormBtn.addEventListener('click', showSubtopicForm);
-            editSubtopicFormBtn.addEventListener('click', showEditSubtopicForm);
-            
-            // Event listeners for cancel buttons
-            cancelTopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
+        // Auto-dismiss alerts after 3 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
             });
-            
-            cancelEditTopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
-            });
-            
-            backFromEditTopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    editTopicDetails.style.display = 'none';
-                    document.getElementById('edit_topic_select').value = '';
-                    formHasChanges = false;
-                }
-            });
-            
-            cancelSubtopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
-            });
-            
-            cancelEditSubtopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
-            });
-            
-            backFromEditSubtopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    editSubtopicDetails.style.display = 'none';
-                    document.getElementById('edit_subtopic_select').value = '';
-                    formHasChanges = false;
-                }
-            });
-            
-            //buttons that are below the dropdown list from edit topics and edit subtopics
-            function showDropdownBackButton() {
-                document.getElementById('back-from-edit-topic-dropdown').style.display = 'block';
-                document.getElementById('back-from-edit-subtopic-dropdown').style.display = 'block';
-            }
-
-            function hideDropdownBackButton() {
-                document.getElementById('back-from-edit-topic-dropdown').style.display = 'none';
-                document.getElementById('back-from-edit-subtopic-dropdown').style.display = 'none';
-            }
-
-            document.getElementById('back-from-edit-topic-dropdown').addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
-            });
-
-            document.getElementById('back-from-edit-subtopic-dropdown').addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    showMainMenu();
-                }
-            });
-            
-            // Load topic data when selected for editing
-            editTopicSelect.addEventListener('change', function() {
-                const pythonId = parseInt(this.value);
-                
-                if (!pythonId) {
-                    editTopicDetails.style.display = 'none';
-                    showDropdownBackButton(); 
-                    return;
-                }
-                
-                // Find the topic in our preloaded data
-                const topic = allTopics.find(t => t.python_id == pythonId);
-                
-                if (!topic) {
-                    alert('Topic not found in local data');
-                    return;
-                }
-                
-                // Populate form fields
-                document.getElementById('edit_python_id').value = topic.python_id;
-                document.getElementById('edit_topic_title').value = topic.topic;
-                document.getElementById('edit_topic_content').value = topic.content || '';
-                document.getElementById('edit_topic_example').value = topic.example || '';
-                document.getElementById('edit_topic_question').value = topic.question || '';
-                document.getElementById('edit_topic_answer').value = topic.answer || '';
-                
-                // Show the form
-                editTopicDetails.style.display = 'block';
-                hideDropdownBackButton(); 
-                formHasChanges = false;
-            });
-
-            backFromEditTopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    editTopicDetails.style.display = 'none';
-                    document.getElementById('edit_topic_select').value = '';
-                    showDropdownBackButton();
-                    formHasChanges = false;
-                }
-            });
-
-            // Load subtopic data when selected for editing
-            editSubtopicSelect.addEventListener('change', function() {
-                const subtopicId = parseInt(this.value);
-                
-                if (!subtopicId) {
-                    editSubtopicDetails.style.display = 'none';
-                    showDropdownBackButton(); 
-                    return;
-                }
-                
-                // Find the subtopic in our preloaded data
-                const subtopic = allSubtopics.find(s => s.subtopic_id == subtopicId);
-                
-                if (!subtopic) {
-                    alert('Subtopic not found in local data');
-                    return;
-                }
-                
-                // Populate form fields
-                document.getElementById('edit_subtopic_id').value = subtopic.subtopic_id;
-                document.getElementById('edit_subtopic_python_id').value = subtopic.python_id;
-                document.getElementById('edit_subtopic_title').value = subtopic.subtopic_title;
-                document.getElementById('edit_subtopic_content').value = subtopic.content || '';
-                document.getElementById('edit_subtopic_example').value = subtopic.example || '';
-                document.getElementById('edit_subtopic_question').value = subtopic.question || '';
-                document.getElementById('edit_subtopic_answer').value = subtopic.answer || '';
-                
-                // Show the form
-                editSubtopicDetails.style.display = 'block';
-                hideDropdownBackButton(); 
-                formHasChanges = false;
-            });
-
-            backFromEditSubtopicBtn.addEventListener('click', function() {
-                if (confirmLeaveForm()) {
-                    editSubtopicDetails.style.display = 'none';
-                    document.getElementById('edit_subtopic_select').value = '';
-                    showDropdownBackButton();
-                    formHasChanges = false;
-                }
-            });
-            
-            // Initialize with main menu
-            showMainMenu();
-        });
+        }, 3000);
     </script>
 </body>
 </html>
