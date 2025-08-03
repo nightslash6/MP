@@ -77,11 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("sssss", $topic_title, $topic_content, $topic_example, $topic_question, $topic_answer);
                 
                 if ($stmt->execute()) {
-                    $_SESSION['message'] = ['successful' => 'Topic added successfully!'];
+                    $_SESSION['message']['successful'] = "Topic added successfully!";
                     header('Location: admin_python.php');
                     exit;
                 } else {
-                    $message = 'Error adding topic: ' . $conn->error;
+                    $_SESSION['message']['unsuccessful'] = "Error adding topic: " . $conn->error;
+                    header('Location: add_topic.php');
+                    exit;
                 }
             }
             $stmt->close();

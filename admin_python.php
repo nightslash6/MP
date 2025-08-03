@@ -2,6 +2,14 @@
 session_start();
 require 'config.php';
 
+$message = [
+    'successful' => $_SESSION['message']['successful'] ?? '',
+    'unsuccessful' => $_SESSION['message']['unsuccessful'] ?? ''
+];
+
+// Clear the messages after displaying them
+unset($_SESSION['message']);
+
 $conn = db_connect();
 
 // Check if user is logged in and get user data
@@ -20,11 +28,6 @@ if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
     exit;
 }
 
-$message = [
-    'successful' => '',
-    'unsuccessful' => ''
-];
-
 $conn = db_connect();
 
 // Get all topics for the subtopic dropdown
@@ -32,165 +35,6 @@ $topics = [];
 $stmt = $conn->query("SELECT python_id, topic, content, example, question, answer FROM python ORDER BY python_id ASC");
 if ($stmt) {
     $topics = $stmt->fetch_all(MYSQLI_ASSOC);
-}
-
-// Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validate CSRF token
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $message['unsuccessful'] = "Invalid CSRF token. Please try again.";
-    } else {
-        if (isset($_POST['add_topic'])) {
-            // Validate and sanitize inputs
-            $topic_title = trim($_POST['topic_title']);
-            $topic_content = trim($_POST['topic_content']);
-            $topic_example = trim($_POST['topic_example']);
-            $topic_question = trim($_POST['topic_question']);
-            $topic_answer = trim($_POST['topic_answer']);
-
-            if (empty($topic_title) || empty($topic_content)) {
-                $message['unsuccessful'] = "Topic title and content are required.";
-            } else {
-                $check_stmt = $conn->prepare("SELECT python_id FROM python WHERE topic = ?");
-                $check_stmt->bind_param("s", $topic_title);
-                $check_stmt->execute();
-                $check_result = $check_stmt->get_result();
-
-                if ($check_result->num_rows > 0) {
-                    $message['unsuccessful'] = "This topic already exists! Please choose a different title.";
-                } else {
-                    // Add new topic
-                    $stmt = $conn->prepare("INSERT INTO python (topic, content, example, question, answer) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sssss", $topic_title, $topic_content, $topic_example, $topic_question, $topic_answer);
-                    
-                    if ($stmt->execute()) {
-                        $message['successful'] = "Topic added successfully!";
-                        // Refresh topics list
-                        $stmt = $conn->query("SELECT python_id, topic, content, example, question, answer FROM python ORDER BY python_id ASC");
-                        $topics = $stmt->fetch_all(MYSQLI_ASSOC);
-                    } else {
-                        $message['unsuccessful'] = "Error adding topic: " . $conn->error;
-                    }
-                }
-                $check_stmt->close();
-            }
-        } elseif (isset($_POST['add_subtopic'])) {
-            // Validate and sanitize inputs
-            $python_id = (int)$_POST['python_id'];
-            $subtopic_title = trim($_POST['subtopic_title']);
-            $subtopic_content = trim($_POST['subtopic_content']);
-            $subtopic_example = trim($_POST['subtopic_example']);
-            $subtopic_question = trim($_POST['subtopic_question']);
-            $subtopic_answer = trim($_POST['subtopic_answer']);
-
-            if (empty($python_id) || empty($subtopic_title) || empty($subtopic_content)) {
-                $message['unsuccessful'] = "Topic selection, subtopic title and content are required.";
-            } else {
-                // Check for duplicate subtopic under the same topic
-                $check_stmt = $conn->prepare("SELECT subtopic_id FROM python_subtopics WHERE subtopic_title = ? AND python_id = ?");
-                $check_stmt->bind_param("si", $subtopic_title, $python_id);
-                $check_stmt->execute();
-                $check_result = $check_stmt->get_result();
-
-                if ($check_result->num_rows > 0) {
-                    $message['unsuccessful'] = "This subtopic already exists under the selected topic! Please choose a different title.";
-                } else {
-                    // Add new subtopic
-                    $stmt = $conn->prepare("INSERT INTO python_subtopics (python_id, subtopic_title, content, example, question, answer) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("isssss", $python_id, $subtopic_title, $subtopic_content, $subtopic_example, $subtopic_question, $subtopic_answer);
-                    
-                    if ($stmt->execute()) {
-                        $message['successful'] = "Subtopic added successfully!";
-                        // Refresh subtopics list
-                        $stmt = $conn->query("SELECT ps.subtopic_id, ps.subtopic_title, p.python_id, p.topic, ps.content, ps.example, ps.question, ps.answer 
-                                              FROM python_subtopics ps 
-                                              JOIN python p ON ps.python_id = p.python_id 
-                                              ORDER BY p.python_id ASC, ps.subtopic_id ASC");
-                        $subtopics = $stmt->fetch_all(MYSQLI_ASSOC);
-                    } else {
-                        $message['unsuccessful'] = "Error adding subtopic: " . $conn->error;
-                    }
-                }
-                $check_stmt->close();
-            }
-        } elseif (isset($_POST['edit_topic'])) {
-            // Validate and sanitize inputs
-            $python_id = (int)$_POST['edit_python_id'];
-            $topic_title = trim($_POST['topic_title']);
-            $topic_content = trim($_POST['topic_content']);
-            $topic_example = trim($_POST['topic_example']);
-            $topic_question = trim($_POST['topic_question']);
-            $topic_answer = trim($_POST['topic_answer']);
-
-            if (empty($python_id) || empty($topic_title) || empty($topic_content)) {
-                $message['unsuccessful'] = "Topic ID, title and content are required.";
-            } else {
-                // Check if another topic already has this title
-                $check_stmt = $conn->prepare("SELECT python_id FROM python WHERE topic = ? AND python_id != ?");
-                $check_stmt->bind_param("si", $topic_title, $python_id);
-                $check_stmt->execute();
-                $check_result = $check_stmt->get_result();
-
-                if ($check_result->num_rows > 0) {
-                    $message['unsuccessful'] = "Another topic already has this title! Please choose a different title.";
-                } else {
-                    // Update topic
-                    $stmt = $conn->prepare("UPDATE python SET topic = ?, content = ?, example = ?, question = ?, answer = ? WHERE python_id = ?");
-                    $stmt->bind_param("sssssi", $topic_title, $topic_content, $topic_example, $topic_question, $topic_answer, $python_id);
-                    
-                    if ($stmt->execute()) {
-                        $message['successful'] = "Topic updated successfully!";
-                        // Refresh topics list
-                        $stmt = $conn->query("SELECT python_id, topic, content, example, question, answer FROM python ORDER BY python_id ASC");
-                        $topics = $stmt->fetch_all(MYSQLI_ASSOC);
-                    } else {
-                        $message['unsuccessful'] = "Error updating topic: " . $conn->error;
-                    }
-                }
-                $check_stmt->close();
-            }
-        } elseif (isset($_POST['edit_subtopic'])) {
-            // Validate and sanitize inputs
-            $subtopic_id = (int)$_POST['edit_subtopic_id'];
-            $python_id = (int)$_POST['python_id'];
-            $subtopic_title = trim($_POST['subtopic_title']);
-            $subtopic_content = trim($_POST['subtopic_content']);
-            $subtopic_example = trim($_POST['subtopic_example']);
-            $subtopic_question = trim($_POST['subtopic_question']);
-            $subtopic_answer = trim($_POST['subtopic_answer']);
-
-            if (empty($subtopic_id) || empty($python_id) || empty($subtopic_title) || empty($subtopic_content)) {
-                $message['unsuccessful'] = "Subtopic ID, topic selection, title and content are required.";
-            } else {
-                // Check if another subtopic already has this title under the same topic
-                $check_stmt = $conn->prepare("SELECT subtopic_id FROM python_subtopics WHERE subtopic_title = ? AND python_id = ? AND subtopic_id != ?");
-                $check_stmt->bind_param("sii", $subtopic_title, $python_id, $subtopic_id);
-                $check_stmt->execute();
-                $check_result = $check_stmt->get_result();
-
-                if ($check_result->num_rows > 0) {
-                    $message['unsuccessful'] = "Another subtopic under this topic already has this title! Please choose a different title.";
-                } else {
-                    // Update subtopic
-                    $stmt = $conn->prepare("UPDATE python_subtopics SET python_id = ?, subtopic_title = ?, content = ?, example = ?, question = ?, answer = ? WHERE subtopic_id = ?");
-                    $stmt->bind_param("isssssi", $python_id, $subtopic_title, $subtopic_content, $subtopic_example, $subtopic_question, $subtopic_answer, $subtopic_id);
-                    
-                    if ($stmt->execute()) {
-                        $message['successful'] = "Subtopic updated successfully!";
-                        // Refresh subtopics list
-                        $stmt = $conn->query("SELECT ps.subtopic_id, ps.subtopic_title, p.python_id, p.topic, ps.content, ps.example, ps.question, ps.answer 
-                                              FROM python_subtopics ps 
-                                              JOIN python p ON ps.python_id = p.python_id 
-                                              ORDER BY p.python_id ASC, ps.subtopic_id ASC");
-                        $subtopics = $stmt->fetch_all(MYSQLI_ASSOC);
-                    } else {
-                        $message['unsuccessful'] = "Error updating subtopic: " . $conn->error;
-                    }
-                }
-                $check_stmt->close();
-            }
-        }
-    } 
 }
 
 // Get all subtopics for the edit subtopic dropdown
@@ -319,14 +163,14 @@ if (empty($_SESSION['csrf_token'])) {
 
         <?php if (!empty($message['successful'])): ?>
             <div class="alert alert-success alert-dismissible fade show message" role="alert">
-                <?php echo $message['successful']; ?>
+                <?php echo htmlspecialchars($message['successful']); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        
+
         <?php if (!empty($message['unsuccessful'])): ?>
             <div class="alert alert-danger alert-dismissible fade show message" role="alert">
-                <?php echo $message['unsuccessful']; ?>
+                <?php echo htmlspecialchars($message['unsuccessful']); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
