@@ -1,3 +1,4 @@
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 
@@ -86,8 +87,8 @@ CREATE TABLE `questions` (
   `question_id` int(11) NOT NULL AUTO_INCREMENT,
   `question_text` text NOT NULL,
   `description` text DEFAULT NULL,
-  `question_type` enum('MCQ','ShortAnswer','LongAnswer') NOT NULL,
-  `options` longtext CHARACTER SET utf8mb4 COLLATE=utf8mb4_bin DEFAULT NULL CHECK (json_valid(`options`)),
+  `question_type` enum('MCQ') NOT NULL,
+  `options` json DEFAULT NULL,
   `correct_answer` text DEFAULT NULL,
   `level_id` int(11) DEFAULT NULL,
   `category_id` int(11) NOT NULL DEFAULT 1,
@@ -96,6 +97,7 @@ CREATE TABLE `questions` (
   KEY `category_id` (`category_id`),
   CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=75;
+
 
 INSERT INTO `questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `level_id`, `category_id`, `is_completed`) VALUES
 (3, 'What is Cyber Security?', NULL, 'MCQ', '["Cyber Security provides security against malware", "Cyber Security provides security against cyber-terrorists", "Cyber Security protects a system from cyber attacks", "All of the mentioned"]', 'All of the mentioned', 1, 1, 0),
