@@ -57,7 +57,7 @@ $totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()
 
 <?php include 'navbar.php'; ?>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="dashboard-header mb-4">
         <h1 class="mb-1">Welcome, Admin</h1>
         <p class="mb-0">Manage users, questions, and categories from one place.</p>
@@ -76,7 +76,7 @@ $totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()
     </div>
 
     <!-- Categories -->
-    <h3 class="section-title">Category Admin Pages</h3>
+    <h3 class="section-title">Manage Admin Pages</h3>
     <div class="row g-4">
         <div class="col-md-3">
             <div class="card text-center py-4">
