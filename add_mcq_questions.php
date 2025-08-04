@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <button type="submit" class="btn btn-primary">Add Question</button>
-        <a href="mcq_admin.php" class="btn btn-secondary ms-2">Cancel</a>
+        <a href="mcq_quiz_admin.php" class="btn btn-secondary ms-2">Cancel</a>
     </form>
 </div>
 
@@ -236,28 +236,6 @@ document.getElementById('number_of_options').addEventListener('change', () => {
     populateOptions();
 });
 </script>
-<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Remove message elements after animation completes
-            const messages = document.querySelectorAll('.message');
-            messages.forEach(message => {
-                // Auto-remove after animation
-                setTimeout(() => {
-                    message.remove();
-                }, 3000);
-               
-                // Handle manual close
-                const closeBtn = message.querySelector('.btn-close');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function() {
-                        message.style.animation = 'none';
-                        message.remove();
-                    });
-                }
-            });
-        });
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

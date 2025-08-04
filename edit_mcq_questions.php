@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <button type="submit" class="btn btn-primary">Update Question</button>
-        <a href="mcq_admin.php" class="btn btn-secondary ms-2">Cancel</a>
+        <a href="mcq_quiz_admin.php" class="btn btn-secondary ms-2">Cancel</a>
     </form>
 </div>
 
@@ -281,6 +281,6 @@ document.getElementById('number_of_options').addEventListener('change', () => {
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
