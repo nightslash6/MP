@@ -40,8 +40,8 @@ function validateInput($data, &$errors) {
         $errors['level_id'] = 'Please select a level.';
     }
 
-    if (empty($data['options']) || count($data['options']) < 1) {
-        $errors['options'] = 'At least one option is required.';
+    if (empty($data['options']) || count($data['options']) < 2) {
+        $errors['options'] = 'At least two options are required.';
     }
 
     if (empty($data['correct_answer'])) {
@@ -55,14 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $message = 'Invalid CSRF token!';
     } else {
-        $number_of_options = intval($_POST['number_of_options'] ?? 1);
-
-        // Collect options from option inputs dynamically
+        // Collect options from dynamic inputs
         $options = [];
-        for ($i = 1; $i <= $number_of_options; $i++) {
-            $opt = sanitize($_POST["option$i"] ?? '');
-            if ($opt !== '') {
-                $options[] = $opt;
+        if (isset($_POST['mcq_options'])) {
+            foreach ($_POST['mcq_options'] as $key => $value) {
+                $opt = sanitize($value);
+                if ($opt !== '') {
+                    $options[] = $opt;
+                }
             }
         }
 
@@ -77,15 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validateInput($data, $errors);
 
         if (empty($errors)) {
-            // Extract correct answer text from selected 'optionX'
-            $correct_answer_index = intval(substr($data['correct_answer'], 6)) - 1; // e.g. 'option1' -> index 0
-            $correct_answer_text = $data['options'][$correct_answer_index] ?? '';
-
             // Store options as JSON string in DB
             $options_json = json_encode($data['options']);
 
             $stmt = $conn->prepare("INSERT INTO questions (question_text, category_id, level_id, options, correct_answer) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("siiss", $data['question_text'], $data['category_id'], $data['level_id'], $options_json, $correct_answer_text);
+            $stmt->bind_param("siiss", $data['question_text'], $data['category_id'], $data['level_id'], $options_json, $data['correct_answer']);
 
             if ($stmt->execute()) {
                 $_SESSION['message'] = ['successful' => 'Question added successfully!'];
@@ -109,6 +105,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="mstyles.css" />
+    <style>
+        .remove-option {
+            width: 40px;
+            font-weight: bold;
+        }
+        .input-group-text {
+            min-width: 80px;
+        }
+        #mcqOptionsContainer {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 <body>
 
@@ -124,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="POST" onsubmit="return validateForm()">
+    <form method="POST" id="mcqForm">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>" />
 
         <div class="mb-3">
@@ -156,22 +164,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="mb-3">
-            <label for="number_of_options" class="form-label">Number of Options</label>
-            <select id="number_of_options" name="number_of_options" class="form-select" onchange="populateOptions()" required>
+            <label class="form-label">MCQ Options *</label>
+            <div id="mcqOptionsList">
                 <?php
-                $selectedCount = isset($_POST['number_of_options']) ? intval($_POST['number_of_options']) : 1;
-                for ($i=1; $i<=5; $i++): ?>
-                    <option value="<?=$i?>" <?= $selectedCount==$i ? 'selected' : '' ?>><?=$i?></option>
-                <?php endfor; ?>
-            </select>
+                // Show existing options if form was submitted with errors
+                if (!empty($_POST['mcq_options'])) {
+                    foreach ($_POST['mcq_options'] as $index => $option) {
+                        $optionNum = $index + 1;
+                        echo '
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Option '.$optionNum.'</span>
+                            <input type="text" name="mcq_options[]" class="form-control mcq-option" value="'.htmlspecialchars($option).'" maxlength="200" required>
+                            '.($optionNum > 2 ? '<button type="button" class="btn btn-outline-danger remove-option">×</button>' : '').'
+                        </div>';
+                    }
+                } else {
+                    // Default 2 options
+                    for ($i = 1; $i <= 2; $i++) {
+                        echo '
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Option '.$i.'</span>
+                            <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200" required>
+                            '.($i > 2 ? '<button type="button" class="btn btn-outline-danger remove-option">×</button>' : '').'
+                        </div>';
+                    }
+                }
+                ?>
+            </div>
+            <button type="button" id="addMcqOption" class="btn btn-sm btn-outline-primary mt-2">+ Add Option</button>
+            <?php if (isset($errors['options'])): ?>
+                <div class="invalid-feedback d-block"><?= $errors['options'] ?></div>
+            <?php endif; ?>
         </div>
-
-        <div id="optionsContainer"></div>
 
         <div class="mb-3">
             <label for="correct_answer" class="form-label">Correct Answer</label>
             <select id="correct_answer" name="correct_answer" class="form-select <?= isset($errors['correct_answer']) ? 'is-invalid' : '' ?>" required>
-                <!-- JS will populate options here -->
+                <?php
+                if (!empty($_POST['mcq_options'])) {
+                    foreach ($_POST['mcq_options'] as $index => $option) {
+                        $optionNum = $index + 1;
+                        $selected = ($_POST['correct_answer'] ?? '') === $option ? 'selected' : '';
+                        echo '<option value="'.htmlspecialchars($option).'" '.$selected.'>Option '.$optionNum.'</option>';
+                    }
+                } else {
+                    for ($i = 1; $i <= 2; $i++) {
+                        echo '<option value="">Option '.$i.'</option>';
+                    }
+                }
+                ?>
             </select>
             <div class="invalid-feedback"><?= $errors['correct_answer'] ?? '' ?></div>
         </div>
@@ -182,58 +223,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-function updateCorrectAnswerOptions() {
-    const numberOfOptions = parseInt(document.getElementById('number_of_options').value);
+document.addEventListener('DOMContentLoaded', function() {
+    const mcqOptionsList = document.getElementById('mcqOptionsList');
+    const addMcqOptionBtn = document.getElementById('addMcqOption');
     const correctAnswerSelect = document.getElementById('correct_answer');
-    const previousSelection = correctAnswerSelect.value;
-
-    correctAnswerSelect.innerHTML = '';
-
-    for (let i = 1; i <= numberOfOptions; i++) {
-        const optionText = `Option ${i}`;
-        const option = document.createElement('option');
-        option.value = `option${i}`;
-        option.textContent = optionText;
-
-        if (previousSelection === option.value) {
-            option.selected = true;
-        }
-        correctAnswerSelect.appendChild(option);
-    }
-
-    if (!correctAnswerSelect.value && numberOfOptions > 0) {
-        correctAnswerSelect.selectedIndex = 0;
-    }
-}
-
-function populateOptions() {
-    const container = document.getElementById('optionsContainer');
-    const count = parseInt(document.getElementById('number_of_options').value);
-    container.innerHTML = '';
-
-    for (let i = 1; i <= count; i++) {
-        let val = '';
-        <?php if (!empty($_POST)): ?>
-        val = <?= json_encode($_POST) ?>[`option${i}`] || '';
-        <?php endif; ?>
-
-        const inputGroup = document.createElement('div');
-        inputGroup.className = 'mb-3';
-        inputGroup.innerHTML = `
-            <label for="option${i}" class="form-label">Option ${i}</label>
-            <input type="text" id="option${i}" name="option${i}" class="form-control" value="${val}" required />
+    
+    // Add new MCQ option
+    addMcqOptionBtn.addEventListener('click', function() {
+        const optionCount = document.querySelectorAll('.mcq-option').length + 1;
+        const newOption = document.createElement('div');
+        newOption.className = 'input-group mb-2';
+        newOption.innerHTML = `
+            <span class="input-group-text">Option ${optionCount}</span>
+            <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200" required>
+            <button type="button" class="btn btn-outline-danger remove-option">×</button>
         `;
-        container.appendChild(inputGroup);
+        mcqOptionsList.appendChild(newOption);
+        
+        // Add corresponding option to correct answer dropdown
+        const newOptionElement = document.createElement('option');
+        newOptionElement.value = '';
+        newOptionElement.textContent = `Option ${optionCount}`;
+        correctAnswerSelect.appendChild(newOptionElement);
+    });
+    
+    // Remove option (event delegation for dynamically added buttons)
+    mcqOptionsList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-option')) {
+            const optionGroup = e.target.closest('.input-group');
+            const optionIndex = Array.from(mcqOptionsList.children).indexOf(optionGroup);
+            
+            // Remove the option
+            optionGroup.remove();
+            
+            // Renumber remaining options
+            document.querySelectorAll('.input-group-text').forEach((el, index) => {
+                el.textContent = `Option ${index + 1}`;
+            });
+            
+            // Update correct answer dropdown
+            updateCorrectAnswerOptions();
+        }
+    });
+    
+    // Update correct answer options when MCQ options change
+    function updateCorrectAnswerOptions() {
+        const options = document.querySelectorAll('.mcq-option');
+        correctAnswerSelect.innerHTML = '';
+        
+        options.forEach((option, index) => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = `Option ${index + 1}`;
+            correctAnswerSelect.appendChild(optionElement);
+        });
     }
-    updateCorrectAnswerOptions();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    populateOptions();
-});
-
-document.getElementById('number_of_options').addEventListener('change', () => {
-    populateOptions();
+    
+    // Update correct answer options when input values change
+    mcqOptionsList.addEventListener('input', function(e) {
+        if (e.target.classList.contains('mcq-option')) {
+            updateCorrectAnswerOptions();
+        }
+    });
+    
+    // Form validation
+    document.getElementById('mcqForm').addEventListener('submit', function(e) {
+        const options = document.querySelectorAll('.mcq-option');
+        let isValid = true;
+        
+        // Check at least 2 options are filled
+        let filledOptions = 0;
+        options.forEach(option => {
+            if (option.value.trim() !== '') {
+                filledOptions++;
+            }
+        });
+        
+        if (filledOptions < 2) {
+            alert('At least 2 MCQ options are required.');
+            isValid = false;
+        }
+        
+        // Check correct answer is selected
+        if (correctAnswerSelect.value === '') {
+            alert('Please select the correct answer.');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
 });
 </script>
 
