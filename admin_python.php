@@ -129,18 +129,20 @@ if (empty($_SESSION['csrf_token'])) {
         
         .message {
             position: fixed;
-            top: 80px;
+            top: 0px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
             max-width: 80%;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeInOut 3s ease-in-out forwards;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; top: 0; }
-            to { opacity: 1; top: 80px; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }  /* Quickly fade in */
+            90% { opacity: 1; }  /* Stay visible */
+            100% { opacity: 0; visibility: hidden; } /* Fade out */
         }
         
         .no-data {
@@ -249,16 +251,27 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
         </div>
     </div>
-
+    
     <script>
-        // Auto-dismiss alerts after 3 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove message elements after animation completes
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                // Auto-remove after animation
+                setTimeout(() => {
+                    message.remove();
+                }, 3000);
+                
+                // Handle manual close
+                const closeBtn = message.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        message.style.animation = 'none';
+                        message.remove();
+                    });
+                }
             });
-        }, 3000);
+        });
     </script>
 </body>
 </html>
