@@ -27,6 +27,12 @@ if (isset($_SESSION['user_id'])) {
             font-family: 'Segoe UI', Arial, sans-serif;
         }
 
+        .navbar { /*So that the nav bar stays at the top and is visible even when scrolling down*/
+            position: sticky;
+            top: 0;
+            z-index: 1000
+        }
+
        /* Profile dropdown styles */
         .profile-dropdown {
             position: relative;
