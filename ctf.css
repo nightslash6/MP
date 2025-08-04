@@ -1,9 +1,9 @@
 /* Apply dark theme globally */
 body {
-    background-color: #0e1111;
-    color: #f0f0f0; /* Brighter text */
+    margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding-top: 80px; /* Make room for navbar */
+    background-color: #0e1111;
+    color: #e0e0e0;
 }
 
 html, body {
@@ -30,7 +30,7 @@ html, body {
 /* Sidebar menu */
 .sidebar {
     width: 250px;
-    background-color: #111418;
+    background-color: #f3f4f6;
     padding: 50px;
     position: sticky;
     top: 100px;
@@ -38,7 +38,7 @@ html, body {
 }
 
 .sidebar h3 {
-    color: #00ff9f;
+    color: #111212;
     margin-bottom: 10px;
 }
 
@@ -55,8 +55,8 @@ html, body {
     width: 100%;
     padding: 10px;
     background-color: transparent;
-    border: 1px solid #00ff9f;
-    color: #00ff9f;
+    border: 1px solid #141515;
+    color: #1a1f1d;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.2s ease;
@@ -65,7 +65,7 @@ html, body {
 .sidebar button.active,
 .sidebar button:hover {
     background-color: #00ff9f;
-    color: #0e1111;
+    color: #0e0e11;
 }
 
 /* Grid layout for challenges */
@@ -76,29 +76,27 @@ html, body {
 
 /* Challenge cards */
 .challenges-grid {
-    flex-grow: 1;
-    padding: 30px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
     gap: 50px;
+    padding: 150px;
+    flex-grow: 1;
 }
 
 .challenge-card {
-    background-color: #1f1f1f;
-    color: #e0e0e0;
-    border: 2px solid #00ff9f;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 0 15px rgba(0, 255, 159, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #1a1f23;
+    border: 5px solid #00ff9f55;
+    border-radius: 20px;
+    padding: 10px;  
+    box-shadow: 0 0 10px rgba(0, 255, 159, 0.1);
+    transition: transform 0.2s;
+    min-height: 1px; /* ↓ Shorter height */
 }
-
 
 .challenge-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 20px rgba(0, 255, 159, 0.5);
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(0, 255, 159, 0.3);
 }
-
 
 .challenge-card h4 a {
     color: #00ff9f;
@@ -133,14 +131,4 @@ html, body {
 .category {
     font-weight: bold;
     color: #00ff9f;
-}
-
-.top-header .top-right-button {
-    position: absolute;
-    right: 20px;
-    font-size: 18px;
-}
-
-h1, h2, h3, h4 {
-    color: #00ffd5; /* Bright teal or cyan */
 }
