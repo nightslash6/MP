@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 04, 2025 at 12:51 PM
+-- Generation Time: Aug 04, 2025 at 05:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -111,6 +111,13 @@ CREATE TABLE `my_crypto_questions` (
   `difficulty` enum('Beginner','Intermediate','Advanced') DEFAULT 'Beginner'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `my_crypto_questions`
+--
+
+INSERT INTO `my_crypto_questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `difficulty`) VALUES
+(2, 'testing', '', 'LongAnswer', NULL, 'testing', 'Intermediate');
+
 -- --------------------------------------------------------
 
 --
@@ -126,6 +133,13 @@ CREATE TABLE `my_forensics_questions` (
   `correct_answer` text DEFAULT NULL,
   `difficulty` enum('Beginner','Intermediate','Advanced') DEFAULT 'Beginner'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `my_forensics_questions`
+--
+
+INSERT INTO `my_forensics_questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `difficulty`) VALUES
+(3, 'test MCQ', '', 'MCQ', '{\"Option1\":\"opt1\",\"Option2\":\"opt2\",\"Option3\":\"opt3\",\"Option4\":\"opt4\",\"Option5\":\"opt5\"}', 'opt1', 'Beginner');
 
 -- --------------------------------------------------------
 
@@ -201,6 +215,86 @@ INSERT INTO `python_subtopics` (`subtopic_id`, `python_id`, `subtopic_title`, `c
 (3, 2, 'Assign Multiple Values', 'Python allows you to assign values to multiple variables in one line.', 'x, y, z = \"Orange\", \"Banana\", \"Cherry\"\r\nprint(x)\r\nprint(y)\r\nprint(z)', '', ''),
 (4, 3, 'If statements', 'An \"if statement\" is written by using the \"if\" keyword.', 'a = 33\r\nb = 200\r\nif b > a:\r\n   print(\"b is greater than a\")', '', ''),
 (5, 3, 'Indentation', 'Python relies on indentation (whitespace at the beginning of a line) to define scope in the code. Other programming languages often use curly-brackets for this purpose.\r\nTo add indentation, you can press \"tab\" on your keyboard, or simply press the space bar three times. Indentation is normally added automatically upon pressing enter to proceed to the next line when writing \"if\" statements.', 'If statement, without indentation (will raise an error):\r\na = 33\r\nb = 200\r\nif b > a:\r\nprint(\"b is greater than a\") # you will get an error', '', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `questions`
+--
+
+CREATE TABLE `questions` (
+  `question_id` int(11) NOT NULL,
+  `question_text` text NOT NULL,
+  `description` text DEFAULT NULL,
+  `question_type` enum('MCQ') NOT NULL,
+  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`options`)),
+  `correct_answer` text DEFAULT NULL,
+  `level_id` int(11) DEFAULT NULL,
+  `category_id` int(11) NOT NULL DEFAULT 1,
+  `is_completed` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `questions`
+--
+
+INSERT INTO `questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `level_id`, `category_id`, `is_completed`) VALUES
+(75, 'What is Cyber Security?', NULL, 'MCQ', '[\"Cyber Security provides security against malware\", \"Cyber Security provides security against cyber-terrorists\", \"Cyber Security protects a system from cyber attacks\", \"All of the mentioned\"]', 'All of the mentioned', 1, 1, 0),
+(76, 'What does cyber security protect?', NULL, 'MCQ', '[\"Cyber security protects criminals\", \"Cyber security protects internet-connected systems\", \"Cyber security protects hackers\", \"None of the mentioned\"]', 'Cyber security protects internet-connected systems', 1, 1, 0),
+(77, 'Which of the following is defined as an attempt to steal, spy, damage or destroy computer systems?', NULL, 'MCQ', '[\"Cyber attack\", \"Computer security\", \"Cryptography\", \"Digital hacking\"]', 'Cyber attack', 1, 1, 0),
+(78, 'What is the weakest link in cybersecurity?', NULL, 'MCQ', '[\"Weak encryption\", \"Humans\", \"Short passwords\", \"Firewalls\"]', 'Humans', 1, 1, 0),
+(79, 'Which of the following is a type of cyber security?', NULL, 'MCQ', '[\"Cloud Security\", \"Network Security\", \"Application Security\", \"All of the above\"]', 'All of the above', 1, 1, 0),
+(80, 'What does the term \"firewall\" refer to in cyber security?', NULL, 'MCQ', '[\"A protective suit worn by cybersecurity professionals\", \"A physical barrier around computer servers\", \"A security system that monitors and controls network traffic\", \"Software for preventing computer overheating\"]', 'A security system that monitors and controls network traffic', 1, 1, 0),
+(81, 'What is the primary function of a firewall?', NULL, 'MCQ', '[\"To speed up internet connection\", \"To monitor and control network traffic\", \"To store passwords\", \"To create backups\"]', 'To monitor and control network traffic', 1, 1, 0),
+(82, 'Which port is commonly used for HTTPS?', NULL, 'MCQ', '[\"80\", \"443\", \"8080\", \"3389\"]', '443', 1, 1, 0),
+(83, 'What does VPN stand for?', NULL, 'MCQ', '[\"Virtual Private Network\", \"Very Private Network\", \"Virtual Public Network\", \"Verified Private Network\"]', 'Virtual Private Network', 1, 1, 0),
+(84, 'What is malware?', NULL, 'MCQ', '[\"Good software\", \"Malicious software designed to harm computers\", \"A type of hardware\", \"A network protocol\"]', 'Malicious software designed to harm computers', 1, 1, 0),
+(85, 'What does AES stand for?', NULL, 'MCQ', '[\"Automated Encryption Strength\", \"Advanced Encryption Standard\", \"Algorithm Encrypted System\", \"Advanced Encryption Solution\"]', 'Advanced Encryption Standard', 1, 1, 0),
+(86, 'When is it ok to reuse a password?', NULL, 'MCQ', '[\"When you trust the website\", \"For unimportant accounts\", \"Never\", \"Once a year\"]', 'Never', 1, 1, 0),
+(87, 'What is the purpose of a CAPTCHA in online security?', NULL, 'MCQ', '[\"Detecting malware\", \"Authenticating users\", \"Preventing automated bots\", \"Encrypting data\"]', 'Preventing automated bots', 1, 1, 0),
+(88, 'What is two-factor authentication (2FA)?', NULL, 'MCQ', '[\"Using two passwords\", \"Using two devices\", \"Using two different methods to verify identity\", \"Using two usernames\"]', 'Using two different methods to verify identity', 1, 1, 0),
+(89, 'What type of software infects a machine, locks the files, then asks for money?', NULL, 'MCQ', '[\"Worm\", \"Trojan\", \"Ransomware\", \"Browser Hijacker\"]', 'Ransomware', 1, 1, 0),
+(90, 'Which protocol provides secure file transfer over SSH?', NULL, 'MCQ', '[\"FTP\",\"FTPS\",\"SFTP\",\"TFTP\"]', 'SFTP', 2, 1, 0),
+(91, 'What port does SSH listen on by default?', NULL, 'MCQ', '[\"20\",\"22\",\"23\",\"443\"]', '22', 2, 1, 0),
+(92, 'Which AES mode provides both confidentiality and integrity?', NULL, 'MCQ', '[\"CBC\",\"ECB\",\"GCM\",\"OFB\"]', 'GCM', 2, 1, 0),
+(93, 'Which of the following Nmap options enables OS detection?', NULL, 'MCQ', '[\"-sV\",\"-O\",\"-A\",\"-sS\"]', '-O', 2, 1, 0),
+(94, 'Which of the following best describes Fully Homomorphic Encryption (FHE)?', NULL, 'MCQ', '[\"Encryption that supports only addition on ciphertexts\",\"Encryption that supports either addition or multiplication but not both\",\"Encryption that allows arbitrary computation on encrypted data without decryption\",\"A symmetric cipher hardened against quantum attacks\"]', 'Encryption that allows arbitrary computation on encrypted data without decryption', 3, 1, 0),
+(95, 'In a Zero Trust network, which principle is fundamental?', NULL, 'MCQ', '[\"Implicit trust for internal network traffic\",\"Verification of every user or device, regardless of location\",\"Relying on perimeter firewalls as the primary defense\",\"Allowing lateral movement once inside the network\"]', 'Verification of every user or device, regardless of location', 3, 1, 0),
+(96, 'An attacker crafts inputs to bypass an ML-based intrusion detection system. This is known as:', NULL, 'MCQ', '[\"Data poisoning\",\"Model inversion\",\"Evasion attack\",\"Membership inference\"]', 'Evasion attack', 3, 1, 0),
+(97, 'Which protocol is commonly used to securely connect to a remote server?', NULL, 'MCQ', '[\"HTTP\",\"FTP\",\"SSH\",\"Telnet\"]', 'SSH', 2, 1, 0),
+(98, 'What is the main purpose of a firewall in a network?', NULL, 'MCQ', '[\"To store data\",\"To block unauthorized access\",\"To speed up the network\",\"To manage passwords\"]', 'To block unauthorized access', 2, 1, 0),
+(99, 'Which of the following is considered a strong password?', NULL, 'MCQ', '[\"password123\",\"qwerty\",\"P@ssw0rd!\",\"123456\"]', 'P@ssw0rd!', 2, 1, 0),
+(100, 'What is phishing primarily designed to do?', NULL, 'MCQ', '[\"Steal sensitive information\",\"Speed up computers\",\"Fix software bugs\",\"Enhance graphics\"]', 'Steal sensitive information', 2, 1, 0),
+(101, 'Which type of malware is designed to replicate itself and spread to others?', NULL, 'MCQ', '[\"Worm\",\"Adware\",\"Spyware\",\"Ransomware\"]', 'Worm', 2, 1, 0),
+(102, 'What is the primary function of a Security Information and Event Management (SIEM) system?', NULL, 'MCQ', '[\"Encrypt data\",\"Monitor and analyze security events\",\"Scan for viruses\",\"Manage user passwords\"]', 'Monitor and analyze security events', 3, 1, 0),
+(103, 'Which attack exploits the trust between two communicating parties by intercepting traffic?', NULL, 'MCQ', '[\"Phishing\",\"Man-in-the-middle\",\"Denial of Service\",\"SQL Injection\"]', 'Man-in-the-middle', 3, 1, 0),
+(104, 'What is the main goal of a penetration test?', NULL, 'MCQ', '[\"To fix software bugs\",\"To evaluate security by simulating attacks\",\"To increase bandwidth\",\"To backup data\"]', 'To evaluate security by simulating attacks', 3, 1, 0),
+(105, 'Which protocol adds security to DNS queries?', NULL, 'MCQ', '[\"DNSSEC\",\"HTTPS\",\"SSL\",\"SFTP\"]', 'DNSSEC', 3, 1, 0),
+(106, 'In cybersecurity, what does the principle of “least privilege” mean?', NULL, 'MCQ', '[\"Granting all users admin rights\",\"Providing minimum access necessary\",\"Allowing guest access\",\"Disabling authentication\"]', 'Providing minimum access necessary', 3, 1, 0),
+(107, 'What is a common method for detecting anomalies in network traffic?', NULL, 'MCQ', '[\"Manual inspection\",\"Signature-based detection\",\"Anomaly-based detection\",\"Password cracking\"]', 'Anomaly-based detection', 3, 1, 0),
+(108, 'Which type of cyber attack involves overwhelming a system with traffic to make it unavailable?', NULL, 'MCQ', '[\"Phishing\",\"Denial of Service\",\"Rootkit\",\"Keylogger\"]', 'Denial of Service', 3, 1, 0),
+(109, 'What is the primary goal of digital forensics?', NULL, 'MCQ', '[\"To recover deleted files\",\"To analyze digital evidence\",\"To create malware\",\"To hack systems\"]', 'To analyze digital evidence', 1, 2, 0),
+(110, 'Which device is commonly used to capture network traffic for forensic analysis?', NULL, 'MCQ', '[\"Router\",\"Switch\",\"Packet sniffer\",\"Firewall\"]', 'Packet sniffer', 1, 2, 0),
+(111, 'What does the term \'chain of custody\' refer to in forensics?', NULL, 'MCQ', '[\"Sequence of evidence handling\",\"Type of malware\",\"Encryption method\",\"File recovery technique\"]', 'Sequence of evidence handling', 1, 2, 0),
+(112, 'Which file system is often analyzed in digital forensics?', NULL, 'MCQ', '[\"NTFS\",\"FAT32\",\"EXT4\",\"All of the above\"]', 'All of the above', 1, 2, 0),
+(113, 'What is the first step in a digital forensic investigation?', NULL, 'MCQ', '[\"Data analysis\",\"Evidence collection\",\"Reporting\",\"System shutdown\"]', 'Evidence collection', 1, 2, 0),
+(114, 'Which tool is commonly used for disk imaging in forensics?', NULL, 'MCQ', '[\"Wireshark\",\"FTK Imager\",\"Nmap\",\"Metasploit\"]', 'FTK Imager', 2, 2, 0),
+(115, 'What is the purpose of hashing in digital forensics?', NULL, 'MCQ', '[\"To encrypt data\",\"To verify data integrity\",\"To delete files\",\"To speed up analysis\"]', 'To verify data integrity', 2, 2, 0),
+(116, 'Which type of evidence is considered volatile?', NULL, 'MCQ', '[\"Hard drive data\",\"RAM data\",\"Printed documents\",\"Emails\"]', 'RAM data', 2, 2, 0),
+(117, 'What does the term \'live forensics\' mean?', NULL, 'MCQ', '[\"Analyzing data on a running system\",\"Analyzing deleted files\",\"Analyzing network traffic\",\"Analyzing backups\"]', 'Analyzing data on a running system', 2, 2, 0),
+(118, 'Which file format is commonly used to store forensic images?', NULL, 'MCQ', '[\".exe\",\".dd\",\".txt\",\".jpg\"]', '.dd', 2, 2, 0),
+(119, 'What is the role of metadata in digital forensics?', NULL, 'MCQ', '[\"To hide files\",\"To provide information about data\",\"To encrypt files\",\"To delete data\"]', 'To provide information about data', 2, 2, 0),
+(120, 'Which law enforcement agency often handles digital forensic investigations in the US?', NULL, 'MCQ', '[\"FBI\",\"CIA\",\"NSA\",\"DEA\"]', 'FBI', 2, 2, 0),
+(121, 'What is the difference between static and live forensics?', NULL, 'MCQ', '[\"Static analyzes powered-off systems, live analyzes running systems\",\"Static analyzes running systems, live analyzes powered-off systems\",\"Both analyze powered-off systems\",\"Both analyze running systems\"]', 'Static analyzes powered-off systems, live analyzes running systems', 3, 2, 0),
+(122, 'Which forensic tool is used for memory analysis?', NULL, 'MCQ', '[\"Volatility\",\"Wireshark\",\"Nmap\",\"FTK Imager\"]', 'Volatility', 3, 2, 0),
+(123, 'What is steganography in the context of digital forensics?', NULL, 'MCQ', '[\"Hiding data within other files\",\"Encrypting data\",\"Deleting data\",\"Backing up data\"]', 'Hiding data within other files', 3, 2, 0),
+(124, 'Which technique is used to recover deleted files?', NULL, 'MCQ', '[\"File carving\",\"Encryption\",\"Hashing\",\"Compression\"]', 'File carving', 3, 2, 0),
+(125, 'What is the significance of the write blocker in forensic investigations?', NULL, 'MCQ', '[\"Prevents modification of evidence\",\"Speeds up data transfer\",\"Encrypts data\",\"Deletes malware\"]', 'Prevents modification of evidence', 3, 2, 0),
+(126, 'Which forensic process involves analyzing network traffic to detect intrusions?', NULL, 'MCQ', '[\"Network forensics\",\"Disk imaging\",\"File carving\",\"Memory analysis\"]', 'Network forensics', 3, 2, 0),
+(127, 'What is the role of the hash value in verifying forensic evidence?', NULL, 'MCQ', '[\"To speed up analysis\",\"To uniquely identify data\",\"To encrypt data\",\"To delete data\"]', 'To uniquely identify data', 3, 2, 0),
+(128, 'Which type of forensic analysis focuses on recovering data from mobile devices?', NULL, 'MCQ', '[\"Mobile forensics\",\"Network forensics\",\"Memory forensics\",\"Disk forensics\"]', 'Mobile forensics', 3, 2, 0),
+(129, 'What is the primary challenge in cloud forensics?', NULL, 'MCQ', '[\"Data volatility\",\"Data encryption\",\"Data jurisdiction\",\"All of the above\"]', 'All of the above', 3, 2, 0),
+(130, 'Which standard is commonly followed for forensic soundness?', NULL, 'MCQ', '[\"ISO/IEC 27037\",\"ISO 9001\",\"NIST SP 800-53\",\"GDPR\"]', 'ISO/IEC 27037', 3, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -440,6 +534,13 @@ ALTER TABLE `python_subtopics`
   ADD KEY `python_id` (`python_id`);
 
 --
+-- Indexes for table `questions`
+--
+ALTER TABLE `questions`
+  ADD PRIMARY KEY (`question_id`),
+  ADD KEY `category_id` (`category_id`);
+
+--
 -- Indexes for table `solves`
 --
 ALTER TABLE `solves`
@@ -504,13 +605,13 @@ ALTER TABLE `challenges`
 -- AUTO_INCREMENT for table `my_crypto_questions`
 --
 ALTER TABLE `my_crypto_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `my_forensics_questions`
 --
 ALTER TABLE `my_forensics_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `powerups`
@@ -522,13 +623,19 @@ ALTER TABLE `powerups`
 -- AUTO_INCREMENT for table `python`
 --
 ALTER TABLE `python`
-  MODIFY `python_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `python_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `python_subtopics`
 --
 ALTER TABLE `python_subtopics`
-  MODIFY `subtopic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `subtopic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `questions`
+--
+ALTER TABLE `questions`
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -557,6 +664,12 @@ ALTER TABLE `user_progress`
 --
 ALTER TABLE `python_subtopics`
   ADD CONSTRAINT `python_subtopics_ibfk_1` FOREIGN KEY (`python_id`) REFERENCES `python` (`python_id`);
+
+--
+-- Constraints for table `questions`
+--
+ALTER TABLE `questions`
+  ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
