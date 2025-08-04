@@ -94,11 +94,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title><?= $is_edit ? "Edit" : "Add" ?> <?= ucfirst($_GET['table']) ?> Challenge</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { padding: 20px; background: #f8f9fa; }
-        .container { max-width: 700px; }
+        body {
+            background: #f8f9fa; 
+            padding-bottom: 60px;
+        }
+        .container { 
+            max-width: 700px; 
+        }
     </style>
 </head>
 <body>
+<?php include 'navbar.php' ?>
 <div class="container">
     <h1 class="mb-4"><?= $is_edit ? "Edit" : "Add" ?> <?= ucfirst($_GET['table']) ?> Challenge</h1>
     <?php if ($message): ?>
