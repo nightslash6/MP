@@ -114,66 +114,61 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 <body>
     <?php include 'navbar.php'; ?>
     
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h2>Add New Subtopic</h2>
-            </div>
-            <div class="card-body">
-            <?php if ($message): ?>
-            <div class="alert alert-danger alert-dismissible fade show">
-                <?= htmlspecialchars($message) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <?php endif; ?>
-                
-                <form method="POST" onsubmit="return validateForm()">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    
-                    <div class="mb-3">
-                        <label for="python_id" class="form-label">Select Topic*</label>
-                        <select class="form-select" id="python_id" name="python_id" required>
-                            <option value="">-- Select a Topic --</option>
-                            <?php foreach ($topics as $topic): ?>
-                                <option value="<?= htmlspecialchars($topic['python_id']) ?>">
-                                    <?= htmlspecialchars($topic['topic']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subtopic_title" class="form-label">Subtopic Title* (max 255 characters)</label>
-                        <input type="text" class="form-control" id="subtopic_title" name="subtopic_title" required
-                               maxlength="255" pattern="[a-zA-Z0-9\s\-.,?!:;'&quot;()]+"
-                               title="Only letters, numbers, spaces, and basic punctuation are allowed">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subtopic_content" class="form-label">Content*</label>
-                        <textarea class="form-control" id="subtopic_content" name="subtopic_content" rows="5" required></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subtopic_example" class="form-label">Example Code</label>
-                        <textarea class="form-control" id="subtopic_example" name="subtopic_example" rows="5"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subtopic_question" class="form-label">Question</label>
-                        <textarea class="form-control" id="subtopic_question" name="subtopic_question" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subtopic_answer" class="form-label">Answer</label>
-                        <textarea class="form-control" id="subtopic_answer" name="subtopic_answer" rows="3"></textarea>
-                    </div>
-                    
-                    <button type="submit" name="add_subtopic" class="btn btn-primary">Save Subtopic</button>
-                    <a href="admin_python.php" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
+    <div class="container mt-5 mb-5">
+        <h2>Add New Subtopic</h2>
+
+        <?php if ($message): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= htmlspecialchars($message) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        <?php endif; ?>
+            
+        <form method="POST" onsubmit="return validateForm()">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            
+            <div class="mb-3">
+                <label for="python_id" class="form-label">Select Topic*</label>
+                <select class="form-select" id="python_id" name="python_id" required>
+                    <option value="">-- Select a Topic --</option>
+                    <?php foreach ($topics as $topic): ?>
+                        <option value="<?= htmlspecialchars($topic['python_id']) ?>">
+                            <?= htmlspecialchars($topic['topic']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subtopic_title" class="form-label">Subtopic Title* (max 255 characters)</label>
+                <input type="text" class="form-control" id="subtopic_title" name="subtopic_title" required
+                        maxlength="255" pattern="[a-zA-Z0-9\s\-.,?!:;'&quot;()]+"
+                        title="Only letters, numbers, spaces, and basic punctuation are allowed">
+            </div>
+            
+            <div class="mb-3">
+                <label for="subtopic_content" class="form-label">Content*</label>
+                <textarea class="form-control" id="subtopic_content" name="subtopic_content" rows="5" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subtopic_example" class="form-label">Example Code</label>
+                <textarea class="form-control" id="subtopic_example" name="subtopic_example" rows="5"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subtopic_question" class="form-label">Question</label>
+                <textarea class="form-control" id="subtopic_question" name="subtopic_question" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="subtopic_answer" class="form-label">Answer</label>
+                <textarea class="form-control" id="subtopic_answer" name="subtopic_answer" rows="3"></textarea>
+            </div>
+            
+            <button type="submit" name="add_subtopic" class="btn btn-primary">Save Subtopic</button>
+            <a href="admin_python.php" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
 
     <script>

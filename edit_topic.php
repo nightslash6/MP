@@ -122,59 +122,54 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 <body>
     <?php include 'navbar.php'; ?>
     
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h2>Edit Topic</h2>
+    <div class="container mt-5 mb-5">
+        <h2>Edit Topic</h2>
+
+        <?php if ($message): ?>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <?= htmlspecialchars($message) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div class="card-body">
-                <?php if ($message): ?>
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <?= htmlspecialchars($message) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
-                
-                <form method="POST" onsubmit="return validateForm()">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    
-                    <div class="mb-3">
-                        <label for="topic_title" class="form-label">Topic Title* (max 255 characters)</label>
-                        <input type="text" class="form-control" id="topic_title" name="topic_title" 
-                               value="<?= htmlspecialchars($topic['topic']) ?>" required
-                               maxlength="255" pattern="[a-zA-Z0-9\s\-.,?!:;'&quot;()]+"
-                               title="Only letters, numbers, spaces, and basic punctuation are allowed">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="topic_content" class="form-label">Content*</label>
-                        <textarea class="form-control" id="topic_content" name="topic_content" 
-                                  rows="5" required><?= htmlspecialchars($topic['content']) ?></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="topic_example" class="form-label">Example Code</label>
-                        <textarea class="form-control" id="topic_example" name="topic_example" 
-                                  rows="5"><?= htmlspecialchars($topic['example']) ?></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="topic_question" class="form-label">Question</label>
-                        <textarea class="form-control" id="topic_question" name="topic_question" 
-                                  rows="3"><?= htmlspecialchars($topic['question']) ?></textarea>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="topic_answer" class="form-label">Answer</label>
-                        <textarea class="form-control" id="topic_answer" name="topic_answer" 
-                                  rows="3"><?= htmlspecialchars($topic['answer']) ?></textarea>
-                    </div>
-                    
-                    <button type="submit" name="edit_topic" class="btn btn-primary">Save Changes</button>
-                    <a href="admin_python.php" class="btn btn-secondary">Cancel</a>
-                </form>
+        <?php endif; ?>
+        
+        <form method="POST" onsubmit="return validateForm()">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            
+            <div class="mb-3">
+                <label for="topic_title" class="form-label">Topic Title* (max 255 characters)</label>
+                <input type="text" class="form-control" id="topic_title" name="topic_title" 
+                        value="<?= htmlspecialchars($topic['topic']) ?>" required
+                        maxlength="255" pattern="[a-zA-Z0-9\s\-.,?!:;'&quot;()]+"
+                        title="Only letters, numbers, spaces, and basic punctuation are allowed">
             </div>
-        </div>
+            
+            <div class="mb-3">
+                <label for="topic_content" class="form-label">Content*</label>
+                <textarea class="form-control" id="topic_content" name="topic_content" 
+                            rows="5" required><?= htmlspecialchars($topic['content']) ?></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="topic_example" class="form-label">Example Code</label>
+                <textarea class="form-control" id="topic_example" name="topic_example" 
+                            rows="5"><?= htmlspecialchars($topic['example']) ?></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="topic_question" class="form-label">Question</label>
+                <textarea class="form-control" id="topic_question" name="topic_question" 
+                            rows="3"><?= htmlspecialchars($topic['question']) ?></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="topic_answer" class="form-label">Answer</label>
+                <textarea class="form-control" id="topic_answer" name="topic_answer" 
+                            rows="3"><?= htmlspecialchars($topic['answer']) ?></textarea>
+            </div>
+            
+            <button type="submit" name="edit_topic" class="btn btn-primary">Save Changes</button>
+            <a href="admin_python.php" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
 
     <script>
