@@ -23,7 +23,6 @@ if (isset($_SESSION['user_id'])) {
   <title>AI Chatbot</title>
   <link rel="stylesheet" href="mstyles.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     body { background-color: #121212; color: white; }
     .container { margin-top: 60px; }
