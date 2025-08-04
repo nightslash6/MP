@@ -1,17 +1,24 @@
 <?php
-// Secure access: Redirect if not admin (implement your admin check)
 session_start();
+require 'config.php';
+
+$message = [
+    'successful' => $_SESSION['message']['successful'] ?? '',
+    'unsuccessful' => $_SESSION['message']['unsuccessful'] ?? ''
+];
+
+// Clear messages after displaying
+unset($_SESSION['message']);
+
+$conn = db_connect();
+
+// Security: Only admins allowed
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');
     exit;
 }
 
-// Load categories and levels for dropdowns
-require 'config.php';
-$conn = db_connect();
-
 $user_data = null;
-
 if (isset($_SESSION['user_id'])) {
     $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
@@ -21,88 +28,291 @@ if (isset($_SESSION['user_id'])) {
         $user_data = $result->fetch_assoc();
     }
     $stmt->close();
+} else {
+    header('Location: login.php');
+    exit;
 }
 
-$categories = $conn->query("SELECT category_id, category_name FROM categories ORDER BY category_name")->fetch_all(MYSQLI_ASSOC);
+// Fetch all questions, categories, and levels
+$questions = $conn->query("
+    SELECT q.*, c.category_name 
+    FROM questions q
+    LEFT JOIN categories c ON q.category_id = c.category_id
+    ORDER BY q.question_id DESC
+")->fetch_all(MYSQLI_ASSOC);
+
+$categories = $conn->query("SELECT * FROM categories ORDER BY category_name")->fetch_all(MYSQLI_ASSOC);
 $levels = $conn->query("SELECT level_id, level_name FROM levels GROUP BY level_id, level_name ORDER BY level_id")->fetch_all(MYSQLI_ASSOC);
+
+// Generate CSRF token if not exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Create MCQ</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="mstyles.css">
+    <meta charset="UTF-8" />
+    <title>MCQ Learning Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="mstyles.css" />
+    <style>
+        body {
+            background: #f5f7fa;
+            padding-top: 70px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section-header {
+            background: linear-gradient(135deg, #4a47a3, #709fb0);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .card {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 10px;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead tr {
+            background-color: #f8f9fa;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 12px 15px;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #495057;
+            font-weight: 500;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .nav-tabs .nav-link.active {
+            color: #4a47a3;
+            border-color: #4a47a3 #4a47a3 transparent;
+            border-bottom: 3px solid #4a47a3;
+            background-color: transparent;
+        }
+        .btn-purple {
+            background-color: #5a3e9e;
+            color: #fff;
+            border: none;
+        }
+        .btn-purple:hover {
+            background-color: #4a2f87;
+        }
+        .message {
+            position: fixed;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            max-width: 80%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }  /* Quickly fade in */
+            90% { opacity: 1; }  /* Stay visible */
+            100% { opacity: 0; visibility: hidden; } /* Fade out */
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
+    <nav class="fixed-top">
+        <?php include 'navbar.php'; ?>
+    </nav>
 
-<?php include 'navbar.php'; ?>
+    <div class="admin-container">
+        <div class="section-header">
+            <h2>MCQ Learning Admin Panel</h2>
+            <p class="mb-0">Manage all MCQ Questions and Categories here.</p>
+        </div>
 
-<!-- Main Page Container -->
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow rounded">
-                <div class="card-body">
-                    <h3 class="mb-4 text-center text-primary">Create New Quiz Question</h3>
-                    <form action="process_mcq_create.php" method="post">
+        <?php if ($message['successful']): ?>
+            <div class="alert alert-success alert-dismissible fade show message" role="alert">
+                <?= htmlspecialchars($message['successful']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+        <?php if ($message['unsuccessful']): ?>
+            <div class="alert alert-danger alert-dismissible fade show message" role="alert">
+                <?= htmlspecialchars($message['unsuccessful']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
 
-                        <div class="mb-3">
-                            <label class="form-label">Question Text</label>
-                            <textarea name="question_text" class="form-control" rows="3" required></textarea>
-                        </div>
+        <ul class="nav nav-tabs" id="adminTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions" type="button" role="tab" aria-controls="questions" aria-selected="true">
+                    📚 Questions
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">
+                    📝 Categories
+                </button>
+            </li>
+        </ul>
 
-                        <div class="mb-3">
-                            <label class="form-label">Description (optional)</label>
-                            <input type="text" name="description" class="form-control">
-                        </div>
+        <div class="tab-content" id="adminTabContent">
+            <div class="tab-pane fade show active" id="questions" role="tabpanel" aria-labelledby="questions-tab">
+                <div class="row align-items-center my-3">
+                    <div class="col-md-5">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search questions..." />
+                    </div>
+                    <div class="col-md-4">
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">All Categories</option>
+                            <?php foreach ($categories as $cat): ?>
+                                <option value="<?= htmlspecialchars($cat['category_name']) ?>"><?= htmlspecialchars($cat['category_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <a href="add_mcq_questions.php" class="btn btn-primary" style="min-width:100px;">➕ Add Topic</a>
+                    </div>
+                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Type</label>
-                            <select name="question_type" class="form-select" required>
-                                <option value="MCQ">MCQ</option>
-                            </select>
-                        </div>
+                <div class="card mt-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="questionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Question Name</th>
+                                    <th>Question Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($questions)): ?>
+                                    <tr><td colspan="3" class="no-data">No questions found.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($questions as $question): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($question['question_text']) ?></td>
+                                            <td><?= htmlspecialchars($question['category_name'] ?? 'N/A') ?></td>
+                                            <td>
+                                                <a href="edit_mcq_questions.php?id=<?= $question['question_id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete_mcq_questions.php?id=<?= $question['question_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this question?')">Delete</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select name="category_id" class="form-select" required>
-                                <?php foreach ($categories as $cat): ?>
-                                    <option value="<?= $cat['category_id'] ?>"><?= htmlentities($cat['category_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+            <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                <div class="d-flex justify-content-end my-3">
+                    <a href="add_mcq_category.php" class="btn btn-primary">➕ Add Category</a>
+                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Level</label>
-                            <select name="level_id" class="form-select" required>
-                                <?php foreach ($levels as $lvl): ?>
-                                    <option value="<?= $lvl['level_id'] ?>"><?= htmlentities($lvl['level_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Options (one per line)</label>
-                            <textarea name="options" class="form-control" rows="4" required></textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Correct Answer</label>
-                            <input type="text" name="correct_answer" class="form-control" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-purple w-100">Create Question</button>
-                    </form>
+                <div class="card mt-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="categoriesTable">
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Category Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($categories)): ?>
+                                    <tr><td colspan="3" class="no-data">No categories found.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($categories as $category): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($category['category_name']) ?></td>
+                                            <td><?= htmlspecialchars($category['category_description']) ?></td>
+                                            <td>
+                                                <a href="edit_mcq_category.php?id=<?= $category['category_id'] ?>" class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete_mcq_category.php?id=<?= $category['category_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Logout Overlay (shared JS feature) -->
-<div id="logoutOverlay" class="logout-overlay">
-    <div class="logout-spinner">Logging out...</div>
-</div>
+    <!-- Optional JavaScript -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const table = document.getElementById('questionsTable');
+            
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const categoryValue = categoryFilter.value.toLowerCase();
+                const tbody = table.tBodies[0];
+                Array.from(tbody.rows).forEach(row => {
+                    const questionText = row.cells[0].textContent.toLowerCase();
+                    const categoryText = row.cells[1].textContent.toLowerCase();
+                    
+                    const matchesSearch = questionText.includes(searchTerm);
+                    const matchesCategory = categoryValue === '' || categoryText === categoryValue;
+                    
+                    row.style.display = matchesSearch && matchesCategory ? '' : 'none';
+                });
+            }
+            
+            searchInput.addEventListener('input', filterTable);
+            categoryFilter.addEventListener('change', filterTable);
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove message elements after animation completes
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                // Auto-remove after animation
+                setTimeout(() => {
+                    message.remove();
+                }, 3000);
+               
+                // Handle manual close
+                const closeBtn = message.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        message.style.animation = 'none';
+                        message.remove();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
 </html>
