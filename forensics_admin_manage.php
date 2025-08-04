@@ -155,7 +155,6 @@ include 'navbar.php';
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
                             <th>Question</th>
                             <th>Difficulty</th>
                             <th>Type</th>
@@ -166,11 +165,10 @@ include 'navbar.php';
                     </thead>
                     <tbody>
                     <?php if (empty($forensics)): ?>
-                        <tr><td colspan="7" class="text-center">No forensics challenges found.</td></tr>
+                        <tr><td colspan="6" class="text-center">No forensics challenges found.</td></tr>
                     <?php endif; ?>
                     <?php foreach ($forensics as $q): ?>
                         <tr>
-                            <td><?= $q['question_id'] ?></td>
                             <td><?= htmlspecialchars($q['question_text']) ?></td>
                             <td><?= htmlspecialchars($q['difficulty']) ?></td>
                             <td><?= htmlspecialchars($q['question_type']) ?></td>
@@ -207,7 +205,6 @@ include 'navbar.php';
                 <table class="table table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
                             <th>Question</th>
                             <th>Difficulty</th>
                             <th>Type</th>
@@ -218,11 +215,10 @@ include 'navbar.php';
                     </thead>
                     <tbody>
                     <?php if (empty($crypto)): ?>
-                        <tr><td colspan="7" class="text-center">No cryptography challenges found.</td></tr>
+                        <tr><td colspan="6" class="text-center">No cryptography challenges found.</td></tr>
                     <?php endif; ?>
                     <?php foreach ($crypto as $q): ?>
                         <tr>
-                            <td><?= $q['question_id'] ?></td>
                             <td><?= htmlspecialchars($q['question_text']) ?></td>
                             <td><?= htmlspecialchars($q['difficulty']) ?></td>
                             <td><?= htmlspecialchars($q['question_type']) ?></td>

@@ -6,7 +6,7 @@ $conn = db_connect();
 
 // Check if user is logged in and get user data
 $user_data = null;
-if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
+if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'admin') {
     $stmt = $conn->prepare("SELECT user_id, name, email, user_role FROM users WHERE user_id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -15,7 +15,7 @@ if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
         $user_data = $result->fetch_assoc();
     }
     $stmt->close();
-}else{
+} else {
     header('Location: login.php');
     exit;
 }
@@ -36,6 +36,7 @@ $description = "";
 $question_type = "ShortAnswer";
 $difficulty = "Beginner";
 $correct_answer = "";
+$options = ['Option1' => '', 'Option2' => '', 'Option3' => '', 'Option4' => ''];
 
 // Validation functions
 function validateQuestionText($input) {
@@ -72,6 +73,10 @@ if ($is_edit) {
         $question_type = $row['question_type'];
         $difficulty = $row['difficulty'];
         $correct_answer = $row['correct_answer'];
+        
+        if ($question_type === 'MCQ' && !empty($row['options'])) {
+            $options = json_decode($row['options'], true);
+        }
     } else {
         $errors[] = "Question not found.";
     }
@@ -98,30 +103,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = $error;
         }
 
+        // Handle MCQ options
+        if ($question_type === 'MCQ') {
+            $options = [];
+            foreach ($_POST['mcq_options'] as $key => $value) {
+                if (!empty(trim($value))) {
+                    $options["Option" . ($key + 1)] = trim($value);
+                }
+            }
+            
+            if (count($options) < 2) {
+                $errors[] = "At least 2 options are required for MCQ questions.";
+            }
+        }
+
         if (empty($errors)) {
             if ($is_edit) {
-                $stmt = $conn->prepare("UPDATE `$table` SET question_text=?, description=?, question_type=?, difficulty=?, correct_answer=? WHERE question_id=?");
-                $stmt->bind_param("sssssi", $question_text, $description, $question_type, $difficulty, $correct_answer, $id);
-                if ($stmt->execute()) {
-                    $_SESSION['message'] = ['successful' => "Question updated successfully!"];
-                    header("Location: forensics_admin_manage.php");
-                    exit;
+                if ($question_type === 'MCQ') {
+                    $stmt = $conn->prepare("UPDATE `$table` SET question_text=?, description=?, question_type=?, difficulty=?, correct_answer=?, options=? WHERE question_id=?");
+                    $stmt->bind_param("ssssssi", $question_text, $description, $question_type, $difficulty, $correct_answer, json_encode($options), $id);
                 } else {
-                    $errors[] = "Error updating question: " . $conn->error;
+                    $stmt = $conn->prepare("UPDATE `$table` SET question_text=?, description=?, question_type=?, difficulty=?, correct_answer=? WHERE question_id=?");
+                    $stmt->bind_param("sssssi", $question_text, $description, $question_type, $difficulty, $correct_answer, $id);
                 }
-                $stmt->close();
             } else {
-                $stmt = $conn->prepare("INSERT INTO `$table` (question_text, description, question_type, difficulty, correct_answer) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssss", $question_text, $description, $question_type, $difficulty, $correct_answer);
-                if ($stmt->execute()) {
-                    $_SESSION['message'] = ['successful' => "Question added successfully!"];
-                    header("Location: forensics_admin_manage.php");
-                    exit;
+                if ($question_type === 'MCQ') {
+                    $stmt = $conn->prepare("INSERT INTO `$table` (question_text, description, question_type, difficulty, correct_answer, options) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt->bind_param("ssssss", $question_text, $description, $question_type, $difficulty, $correct_answer, json_encode($options));
                 } else {
-                    $errors[] = "Error adding question: " . $conn->error;
+                    $stmt = $conn->prepare("INSERT INTO `$table` (question_text, description, question_type, difficulty, correct_answer) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->bind_param("sssss", $question_text, $description, $question_type, $difficulty, $correct_answer);
                 }
-                $stmt->close();
             }
+
+            if ($stmt->execute()) {
+                $_SESSION['message'] = ['successful' => "Question " . ($is_edit ? "updated" : "added") . " successfully!"];
+                header("Location: forensics_admin_manage.php");
+                exit;
+            } else {
+                $errors[] = "Error: " . $conn->error;
+            }
+            $stmt->close();
         }
     }
 }
@@ -149,6 +171,16 @@ if (empty($_SESSION['csrf_token'])) {
             color: #dc3545;
             font-size: 0.875em;
             margin-top: 0.25rem;
+        }
+        .remove-option {
+            width: 40px;
+            font-weight: bold;
+        }
+        .input-group-text {
+            min-width: 80px;
+        }
+        #mcqOptionsContainer {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -185,11 +217,29 @@ if (empty($_SESSION['csrf_token'])) {
         
         <div class="mb-3">
             <label class="form-label">Question Type *</label>
-            <select name="question_type" class="form-select" required>
+            <select name="question_type" id="questionType" class="form-select" required>
                 <option value="ShortAnswer" <?= $question_type==="ShortAnswer"?"selected":"" ?>>Short Answer</option>
                 <option value="LongAnswer" <?= $question_type==="LongAnswer"?"selected":"" ?>>Long Answer</option>
                 <option value="MCQ" <?= $question_type==="MCQ"?"selected":"" ?>>MCQ</option>
             </select>
+        </div>
+        
+        <div id="mcqOptionsContainer" style="display: <?= $question_type === 'MCQ' ? 'block' : 'none' ?>;">
+            <div class="mb-3">
+                <label class="form-label">MCQ Options *</label>
+                <div id="mcqOptionsList">
+                    <?php foreach ($options as $key => $value): ?>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><?= $key ?></span>
+                            <input type="text" name="mcq_options[]" class="form-control mcq-option" value="<?= htmlspecialchars($value) ?>" maxlength="200">
+                            <?php if ($key !== 'Option1' && $key !== 'Option2'): ?>
+                                <button type="button" class="btn btn-outline-danger remove-option">×</button>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" id="addMcqOption" class="btn btn-sm btn-outline-primary mt-2">+ Add Option</button>
+            </div>
         </div>
         
         <div class="mb-3">
@@ -213,46 +263,102 @@ if (empty($_SESSION['csrf_token'])) {
 </div>
 
 <script>
-// Client-side validation
-document.querySelector('form').addEventListener('submit', function(e) {
-    let isValid = true;
-    const questionText = document.querySelector('[name="question_text"]');
-    const correctAnswer = document.querySelector('[name="correct_answer"]');
+document.addEventListener('DOMContentLoaded', function() {
+    const questionTypeSelect = document.getElementById('questionType');
+    const mcqOptionsContainer = document.getElementById('mcqOptionsContainer');
+    const mcqOptionsList = document.getElementById('mcqOptionsList');
+    const addMcqOptionBtn = document.getElementById('addMcqOption');
     
-    // Clear previous error messages
-    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-    
-    // Validate question text
-    if (questionText.value.trim() === '') {
-        questionText.nextElementSibling.textContent = 'Question text is required.';
-        isValid = false;
-    } else if (questionText.value.length > 1000) {
-        questionText.nextElementSibling.textContent = 'Question text must be 1000 characters or less.';
-        isValid = false;
+    // Show/hide MCQ options based on question type
+    function toggleMcqOptions() {
+        mcqOptionsContainer.style.display = questionTypeSelect.value === 'MCQ' ? 'block' : 'none';
     }
     
-    // Validate correct answer
-    if (correctAnswer.value.trim() === '') {
-        correctAnswer.nextElementSibling.textContent = 'Correct answer is required.';
-        isValid = false;
-    } else if (correctAnswer.value.length > 500) {
-        correctAnswer.nextElementSibling.textContent = 'Correct answer must be 500 characters or less.';
-        isValid = false;
-    }
+    // Toggle when question type changes
+    questionTypeSelect.addEventListener('change', toggleMcqOptions);
     
-    if (!isValid) {
-        e.preventDefault();
-    }
-});
-
-// Auto-dismiss alerts after 3 seconds
-setTimeout(() => {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        const bsAlert = new bootstrap.Alert(alert);
-        bsAlert.close();
+    // Add new MCQ option
+    addMcqOptionBtn.addEventListener('click', function() {
+        const optionCount = document.querySelectorAll('.mcq-option').length + 1;
+        const newOption = document.createElement('div');
+        newOption.className = 'input-group mb-2';
+        newOption.innerHTML = `
+            <span class="input-group-text">Option ${optionCount}</span>
+            <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200">
+            <button type="button" class="btn btn-outline-danger remove-option">×</button>
+        `;
+        mcqOptionsList.appendChild(newOption);
     });
-}, 3000);
+    
+    // Remove option (event delegation for dynamically added buttons)
+    mcqOptionsList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-option')) {
+            e.target.closest('.input-group').remove();
+            // Renumber remaining options
+            document.querySelectorAll('.input-group-text').forEach((el, index) => {
+                el.textContent = `Option ${index + 1}`;
+            });
+        }
+    });
+    
+    // Client-side validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let isValid = true;
+        const questionText = document.querySelector('[name="question_text"]');
+        const correctAnswer = document.querySelector('[name="correct_answer"]');
+        
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        
+        // Validate question text
+        if (questionText.value.trim() === '') {
+            questionText.nextElementSibling.textContent = 'Question text is required.';
+            isValid = false;
+        } else if (questionText.value.length > 1000) {
+            questionText.nextElementSibling.textContent = 'Question text must be 1000 characters or less.';
+            isValid = false;
+        }
+        
+        // Validate correct answer
+        if (correctAnswer.value.trim() === '') {
+            correctAnswer.nextElementSibling.textContent = 'Correct answer is required.';
+            isValid = false;
+        } else if (correctAnswer.value.length > 500) {
+            correctAnswer.nextElementSibling.textContent = 'Correct answer must be 500 characters or less.';
+            isValid = false;
+        }
+        
+        // Additional validation for MCQ questions
+        if (questionTypeSelect.value === 'MCQ') {
+            const options = document.querySelectorAll('.mcq-option');
+            let filledOptions = 0;
+            
+            options.forEach(option => {
+                if (option.value.trim() !== '') {
+                    filledOptions++;
+                }
+            });
+            
+            if (filledOptions < 2) {
+                alert('At least 2 MCQ options are required.');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+
+    // Auto-dismiss alerts after 3 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 3000);
+});
 </script>
 </body>
 </html>
