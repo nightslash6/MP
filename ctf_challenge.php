@@ -26,8 +26,8 @@ $result = $conn->query($sql);
 <body>
     <header class="top-header" id="topHeader">
         <h1>Welcome to CTF Challenges</h1>
-        <a href="main.php" class="top-right-button">🏠Back to main</a>
     </header>
+<nav class="fixed-top"><?php include 'navbar.php' ?></nav>
 
 <div class="dashboard-container">
     <aside class="sidebar">
