@@ -20,17 +20,37 @@ if (isset($_SESSION['user_id']) &&  $_SESSION['user_role']==='admin') {
     exit;
 }
 
-$message = "";
+$message = [
+    'successful' => $_SESSION['message']['successful'] ?? '',
+    'unsuccessful' => $_SESSION['message']['unsuccessful'] ?? ''
+];
+
+// Clear the messages after displaying them
+unset($_SESSION['message']);
 
 // Delete logic
 if (isset($_GET['delete'], $_GET['table'])) {
     if (in_array($_GET['table'], ['forensics', 'crypto'])) {
         $table = $_GET['table'] === 'crypto' ? 'my_crypto_questions' : 'my_forensics_questions';
         $id = (int)$_GET['delete'];
-        $stmt = $conn->prepare("DELETE FROM `$table` WHERE question_id = ?");
-        $stmt->bind_param("i", $id);
-        $message = $stmt->execute() ? "Question deleted successfully." : "Error deleting question.";
-        $stmt->close();
+        
+        try {
+            $stmt = $conn->prepare("DELETE FROM `$table` WHERE question_id = ?");
+            $stmt->bind_param("i", $id);
+            
+            if ($stmt->execute()) {
+                $_SESSION['message'] = ['successful' => "Question deleted successfully."];
+            } else {
+                $_SESSION['message'] = ['unsuccessful' => "Error deleting question."];
+            }
+            
+            $stmt->close();
+        } catch (Exception $e) {
+            $_SESSION['message'] = ['unsuccessful' => "Database error: " . $e->getMessage()];
+        }
+        
+        header("Location: forensics_admin_manage.php");
+        exit;
     }
 }
 
@@ -57,6 +77,24 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
         }
         .card { box-shadow: 0 3px 8px rgba(0,0,0,0.1); border: none; }
         .tab-content { margin-top: 2rem; }
+
+        .message {
+            position: fixed;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            max-width: 80%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }  /* Quickly fade in */
+            90% { opacity: 1; }  /* Stay visible */
+            100% { opacity: 0; visibility: hidden; } /* Fade out */
+        }
     </style>
 </head>
 <body>
@@ -84,9 +122,16 @@ include 'navbar.php';
         <p class="mb-0">Manage all Forensics and Cryptography questions here.</p>
     </div>
 
-    <?php if ($message): ?>
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($message) ?>
+   <?php if (!empty($message['successful'])): ?>
+        <div class="alert alert-success alert-dismissible fade show message" role="alert">
+            <?php echo htmlspecialchars($message['successful']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($message['unsuccessful'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show message" role="alert">
+            <?php echo htmlspecialchars($message['unsuccessful']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
@@ -207,5 +252,26 @@ include 'navbar.php';
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Remove message elements after animation completes
+        const messages = document.querySelectorAll('.message');
+        messages.forEach(message => {
+            // Auto-remove after animation
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+            
+            // Handle manual close
+            const closeBtn = message.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    message.style.animation = 'none';
+                    message.remove();
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>
