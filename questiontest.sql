@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 04, 2025 at 05:30 PM
+-- Generation Time: Aug 04, 2025 at 05:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,8 +39,9 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`category_id`, `category_name`, `category_description`, `created_at`) VALUES
-(1, 'CyberSecurity', 'Questions related to Cyber Security topics.', '2025-06-29 05:49:06'),
-(2, 'Forensics', 'Questions related to Forensics topics', '2025-07-03 06:59:22');
+(1, 'CyberSecurity', 'Questions related to Cyber Security topics', '2025-06-29 05:49:06'),
+(2, 'Forensics', 'Questions related to Forensics topics', '2025-07-03 06:59:22'),
+(4, 'networking', '', '2025-08-04 15:32:45');
 
 -- --------------------------------------------------------
 
@@ -94,6 +95,18 @@ CREATE TABLE `levels` (
   `badge_icon` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `levels`
+--
+
+INSERT INTO `levels` (`category_id`, `level_id`, `level_name`, `level_description`, `required_score`, `questions_count`, `unlock_previous_level`, `badge_icon`, `created_at`) VALUES
+(1, 1, 'Beginner', 'Introduction to basic concepts.', 40, 5, NULL, 'beginner.png', '2025-06-29 05:49:06'),
+(1, 2, 'Intermediate', 'Intermediate level questions.', 50, 7, 1, 'intermediate.png', '2025-06-29 05:49:06'),
+(1, 3, 'Advanced', 'Challenging questions for advanced users.', 60, 10, 2, 'advanced.png', '2025-06-29 05:49:06'),
+(2, 1, 'Beginner', 'Introduction to basic concepts.', 40, 5, NULL, 'beginner.png', '2025-07-09 22:00:36'),
+(2, 2, 'Intermediate', 'Intermediate level questions.', 50, 7, 1, 'intermediate.png', '2025-07-09 22:00:36'),
+(2, 3, 'Advanced', 'Challenging questions for advanced users.', 60, 10, 2, 'advanced.png', '2025-07-09 22:00:36');
 
 -- --------------------------------------------------------
 
@@ -593,7 +606,7 @@ ALTER TABLE `user_progress`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `challenges`
