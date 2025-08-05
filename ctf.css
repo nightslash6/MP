@@ -11,22 +11,6 @@ html, body {
     overflow-y: auto;
 }
 
-/* Header (scroll-hide effect already works) */
-.top-header {
-    background-color: #0f1b1d;
-    color: #00ff9f;
-    padding: 6px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    transition: top 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 255, 159, 0.2);
-}
-
 /* Sidebar menu */
 .sidebar {
     width: 250px;
@@ -79,13 +63,13 @@ html, body {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
     gap: 50px;
-    padding: 150px;
+    padding: 100px;
     flex-grow: 1;
 }
 
 .challenge-card {
-    background-color: #1a1f23;
-    border: 5px solid #00ff9f55;
+    background-color: #ffffff;
+    border: 5px solid #13bcea55;
     border-radius: 20px;
     padding: 10px;  
     box-shadow: 0 0 10px rgba(0, 255, 159, 0.1);
@@ -99,13 +83,13 @@ html, body {
 }
 
 .challenge-card h4 a {
-    color: #00ff9f;
+    color: #0a0a0a;
     text-decoration: none;
 }
 
 .challenge-card p {
     margin: 5px 0;
-    color: #ccc;
+    color: #0e0e0e;
 }
 
 .card-header {
@@ -130,5 +114,5 @@ html, body {
 
 .category {
     font-weight: bold;
-    color: #00ff9f;
+    color: #0d0d0d;
 }
