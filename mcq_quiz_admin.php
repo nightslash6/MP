@@ -138,6 +138,52 @@ if (empty($_SESSION['csrf_token'])) {
             color: #6c757d;
             font-style: italic;
         }
+
+        /* Content preview styles */
+        .question-preview {
+            display: inline-block;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .view-content, .view-options {
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        /* Modal content styles */
+        .options-container {
+            padding: 10px;
+        }
+
+        .options-preview {
+            display: inline-block;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        .option-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .option-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-body pre {
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -203,6 +249,7 @@ if (empty($_SESSION['csrf_token'])) {
                                 <tr>
                                     <th>Question Name</th>
                                     <th>Question Category</th>
+                                    <th>Options</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -212,8 +259,39 @@ if (empty($_SESSION['csrf_token'])) {
                                 <?php else: ?>
                                     <?php foreach ($questions as $question): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($question['question_text']) ?></td>
+                                            <td>
+                                                <div class="question-preview">
+                                                    <?= htmlspecialchars(substr($question['question_text'], 0, 50)) ?>
+                                                    <?php if (strlen($question['question_text']) > 50): ?>...<?php endif; ?>
+                                                </div>
+                                                <button class="btn btn-sm btn-info view-content" 
+                                                        data-title="Question" 
+                                                        data-content="<?= htmlspecialchars($question['question_text']) ?>">
+                                                    View
+                                                </button>
+                                            </td>
                                             <td><?= htmlspecialchars($question['category_name'] ?? 'N/A') ?></td>
+                                            <td>
+                                                <?php if (!empty($question['options'])): ?>
+                                                    <?php 
+                                                        $options = json_decode($question['options'], true);
+                                                        if (is_array($options) && !empty($options)):
+                                                    ?>
+                                                        <div class="options-preview">
+                                                            <?= htmlspecialchars(substr(implode(', ', $options), 0, 30)) ?>
+                                                            <?php if (strlen(implode(', ', $options)) > 30): ?>...<?php endif; ?>
+                                                        </div>
+                                                        <button class="btn btn-sm btn-info view-options" 
+                                                                data-options='<?= htmlspecialchars($question['options'], ENT_QUOTES) ?>'>
+                                                            View
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <em>No options</em>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <em>No options</em>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <a href="edit_mcq_questions.php?id=<?= $question['question_id'] ?>" class="btn btn-warning btn-sm">Edit</a>
                                                 <a href="delete_mcq_questions.php?id=<?= $question['question_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this question?')">Delete</a>
@@ -265,6 +343,24 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
+    <!-- Modal for viewing content -->
+    <div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contentModalLabel">Content Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="contentModalBody">
+                    <!-- Content will be inserted here by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Optional JavaScript -->
 
     <script>
@@ -291,9 +387,7 @@ if (empty($_SESSION['csrf_token'])) {
             searchInput.addEventListener('input', filterTable);
             categoryFilter.addEventListener('change', filterTable);
         });
-    </script>
 
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Remove message elements after animation completes
             const messages = document.querySelectorAll('.message');
@@ -312,6 +406,51 @@ if (empty($_SESSION['csrf_token'])) {
                     });
                 }
             });
+        });
+
+        // Handle view content button clicks
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentModal = new bootstrap.Modal(document.getElementById('contentModal'));
+            const contentModalBody = document.getElementById('contentModalBody');
+            const contentModalLabel = document.getElementById('contentModalLabel');
+            
+            // View question text
+            document.querySelectorAll('.view-content').forEach(button => {
+                button.addEventListener('click', function() {
+                    const title = this.getAttribute('data-title');
+                    const content = this.getAttribute('data-content');
+                    
+                    contentModalLabel.textContent = title;
+                    contentModalBody.innerHTML = `<p>${content}</p>`;
+                    contentModal.show();
+                });
+            });
+            
+            // View options (if you have MCQ options to display)
+            document.querySelectorAll('.view-options').forEach(button => {
+                button.addEventListener('click', function() {
+                    const options = JSON.parse(this.getAttribute('data-options'));
+                    let html = '<div class="options-container">';
+                    
+                    for (const [label, value] of Object.entries(options)) {
+                        html += `<div class="option-item"><strong>${label}:</strong> ${htmlspecialchars(value)}</div>`;
+                    }
+                    
+                    html += '</div>';
+                    contentModalLabel.textContent = 'Question Options';
+                    contentModalBody.innerHTML = html;
+                    contentModal.show();
+                });
+            });
+            
+            // Simple HTML entities encoder for JavaScript
+            function htmlspecialchars(str) {
+                return str.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+            }
         });
     </script>
 </body>

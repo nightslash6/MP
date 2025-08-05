@@ -95,6 +95,20 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
             90% { opacity: 1; }  /* Stay visible */
             100% { opacity: 0; visibility: hidden; } /* Fade out */
         }
+
+        .options-preview {
+            display: inline-block;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .view-options {
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -178,9 +192,9 @@ if (isset($_SESSION['user_id'])) {
                                 <?php if ($q['question_type'] === 'MCQ' && !empty($q['options'])):
                                     $opts = json_decode($q['options'], true);
                                     if (is_array($opts)):
-                                        foreach ($opts as $label => $opt):
-                                            echo "<strong>$label:</strong> " . htmlspecialchars($opt) . "<br>";
-                                        endforeach;
+                                        // Show just the first option as a preview
+                                        $firstOpt = reset($opts);
+                                        echo "<button class='btn btn-sm btn-info view-options' data-options='".htmlspecialchars(json_encode($opts), ENT_QUOTES)."'>View</button>";
                                     endif;
                                 else: ?>
                                     <em>N/A</em>
@@ -228,9 +242,9 @@ if (isset($_SESSION['user_id'])) {
                                 <?php if ($q['question_type'] === 'MCQ' && !empty($q['options'])):
                                     $opts = json_decode($q['options'], true);
                                     if (is_array($opts)):
-                                        foreach ($opts as $label => $opt):
-                                            echo "<strong>$label:</strong> " . htmlspecialchars($opt) . "<br>";
-                                        endforeach;
+                                        // Show just the first option as a preview
+                                        $firstOpt = reset($opts);
+                                        echo "<button class='btn btn-sm btn-info view-options' data-options='".htmlspecialchars(json_encode($opts), ENT_QUOTES)."'>View</button>";
                                     endif;
                                 else: ?>
                                     <em>N/A</em>
@@ -245,6 +259,24 @@ if (isset($_SESSION['user_id'])) {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for viewing options -->
+<div class="modal fade" id="optionsModal" tabindex="-1" aria-labelledby="optionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="optionsModalLabel">Question Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="optionsModalBody">
+                <!-- Options will be inserted here by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -269,6 +301,36 @@ if (isset($_SESSION['user_id'])) {
                 });
             }
         });
+    });
+
+        // Handle view options button clicks
+    document.addEventListener('DOMContentLoaded', function() {
+        // Options modal handler
+        const optionsModal = new bootstrap.Modal(document.getElementById('optionsModal'));
+        const optionsModalBody = document.getElementById('optionsModalBody');
+        
+        document.querySelectorAll('.view-options').forEach(button => {
+            button.addEventListener('click', function() {
+                const options = JSON.parse(this.getAttribute('data-options'));
+                let html = '';
+                
+                for (const [label, value] of Object.entries(options)) {
+                    html += `<p><strong>${label}:</strong> ${htmlspecialchars(value)}</p>`;
+                }
+                
+                optionsModalBody.innerHTML = html;
+                optionsModal.show();
+            });
+        });
+        
+        // Simple HTML entities encoder for JavaScript
+        function htmlspecialchars(str) {
+            return str.replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+        }
     });
 </script>
 </body>
