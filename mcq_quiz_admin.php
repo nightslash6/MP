@@ -3,10 +3,9 @@ session_start();
 require 'config.php';
 
 $message = [
-    'successful' => $_SESSION['message']['successful'] ?? '',
+    'successful'   => $_SESSION['message']['successful']   ?? '',
     'unsuccessful' => $_SESSION['message']['unsuccessful'] ?? ''
 ];
-
 // Clear messages after displaying
 unset($_SESSION['message']);
 
@@ -35,9 +34,10 @@ if (isset($_SESSION['user_id'])) {
 
 // Fetch all questions, categories, and levels
 $questions = $conn->query("
-    SELECT q.*, c.category_name 
+    SELECT q.*, c.category_name, l.level_name
     FROM questions q
     LEFT JOIN categories c ON q.category_id = c.category_id
+    LEFT JOIN levels l ON q.level_id = l.level_id
     ORDER BY q.question_id DESC
 ")->fetch_all(MYSQLI_ASSOC);
 
@@ -49,7 +49,6 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,7 +168,6 @@ if (empty($_SESSION['csrf_token'])) {
     <nav class="fixed-top">
         <?php include 'navbar.php'; ?>
     </nav>
-
     <div class="admin-container">
         <div class="section-header">
             <h2>MCQ Learning Admin Panel</h2>
@@ -205,10 +203,10 @@ if (empty($_SESSION['csrf_token'])) {
         <div class="tab-content" id="adminTabContent">
             <div class="tab-pane fade show active" id="questions" role="tabpanel" aria-labelledby="questions-tab">
                 <div class="row align-items-center my-3">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <input type="text" id="searchInput" class="form-control" placeholder="Search questions..." />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select id="categoryFilter" class="form-select">
                             <option value="">All Categories</option>
                             <?php foreach ($categories as $cat): ?>
@@ -216,7 +214,16 @@ if (empty($_SESSION['csrf_token'])) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-3 text-end">
+                    <div class="col-md-3">
+                        <select id="levelFilter" class="form-select">
+                            <option value="">All Levels</option>
+                            <?php foreach ($levels as $level): ?>
+                            <option value="<?= htmlspecialchars($level['level_name']) ?>"><?= htmlspecialchars($level['level_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 text-end">
                         <a href="add_mcq_questions.php" class="btn btn-primary" style="min-width:100px;">➕ Add Topic</a>
                     </div>
                 </div>
@@ -229,12 +236,13 @@ if (empty($_SESSION['csrf_token'])) {
                                     <th>Question Name</th>
                                     <th>Question Category</th>
                                     <th>Options</th>
+                                    <th>Level</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($questions)): ?>
-                                    <tr><td colspan="4" class="no-data">No questions found.</td></tr>
+                                    <tr><td colspan="5" class="no-data">No questions found.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($questions as $question): ?>
                                         <tr>
@@ -262,11 +270,13 @@ if (empty($_SESSION['csrf_token'])) {
                                                     <em>No options</em>
                                                 <?php endif; ?>
                                             </td>
+                                            <td><?= htmlspecialchars($question['level_name'] ?? 'N/A') ?></td>
                                             <td>
                                                 <button class="btn btn-sm btn-info view-details" 
-                                                        data-question="<?= htmlspecialchars($question['question_text']) ?>"
-                                                        data-category="<?= htmlspecialchars($question['category_name'] ?? 'N/A') ?>"
-                                                        data-options='<?= !empty($question['options']) ? htmlspecialchars($question['options'], ENT_QUOTES) : '[]' ?>'>
+                                                    data-question="<?= htmlspecialchars($question['question_text']) ?>"
+                                                    data-category="<?= htmlspecialchars($question['category_name'] ?? 'N/A') ?>"
+                                                    data-options='<?= !empty($question['options']) ? htmlspecialchars($question['options'], ENT_QUOTES) : '[]' ?>'
+                                                    data-level="<?= htmlspecialchars($question['level_name'] ?? 'N/A') ?>">
                                                     View
                                                 </button>
                                                 <a href="edit_mcq_questions.php?id=<?= $question['question_id'] ?>" class="btn btn-warning btn-sm">Edit</a>
@@ -285,7 +295,6 @@ if (empty($_SESSION['csrf_token'])) {
                 <div class="d-flex justify-content-end my-3">
                     <a href="add_mcq_category.php" class="btn btn-primary">➕ Add Category</a>
                 </div>
-
                 <div class="card mt-3">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0" id="categoriesTable">
@@ -340,6 +349,10 @@ if (empty($_SESSION['csrf_token'])) {
                         <h5>Options:</h5>
                         <div id="modal-options" class="options-container"></div>
                     </div>
+                    <div class="question-details">
+                        <h5>Level:</h5>
+                        <p id="modal-level"></p>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -352,25 +365,26 @@ if (empty($_SESSION['csrf_token'])) {
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             const categoryFilter = document.getElementById('categoryFilter');
+            const levelFilter = document.getElementById('levelFilter');
             const table = document.getElementById('questionsTable');
-            
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const categoryValue = categoryFilter.value.toLowerCase();
+                const levelValue = levelFilter.value.toLowerCase();
                 const tbody = table.tBodies[0];
                 Array.from(tbody.rows).forEach(row => {
                     const questionText = row.cells[0].textContent.toLowerCase();
                     const categoryText = row.cells[1].textContent.toLowerCase();
-                    
+                    const levelText = row.cells[3].textContent.toLowerCase();
                     const matchesSearch = questionText.includes(searchTerm);
                     const matchesCategory = categoryValue === '' || categoryText === categoryValue;
-                    
-                    row.style.display = matchesSearch && matchesCategory ? '' : 'none';
+                    const matchesLevel = levelValue === '' || levelText === levelValue;
+                    row.style.display = matchesSearch && matchesCategory && matchesLevel ? '' : 'none';
                 });
             }
-            
             searchInput.addEventListener('input', filterTable);
             categoryFilter.addEventListener('change', filterTable);
+            levelFilter.addEventListener('change', filterTable);
 
             // Remove message elements after animation completes
             const messages = document.querySelectorAll('.message');
@@ -378,7 +392,6 @@ if (empty($_SESSION['csrf_token'])) {
                 setTimeout(() => {
                     message.remove();
                 }, 3000);
-               
                 const closeBtn = message.querySelector('.btn-close');
                 if (closeBtn) {
                     closeBtn.addEventListener('click', function() {
@@ -393,16 +406,16 @@ if (empty($_SESSION['csrf_token'])) {
             const modalCategory = document.getElementById('modal-category');
             const modalQuestion = document.getElementById('modal-question');
             const modalOptions = document.getElementById('modal-options');
-            
+            const modalLevel = document.getElementById('modal-level');
             document.querySelectorAll('.view-details').forEach(button => {
                 button.addEventListener('click', function() {
                     const category = this.getAttribute('data-category');
                     const question = this.getAttribute('data-question');
                     const options = JSON.parse(this.getAttribute('data-options'));
-                    
+                    const level = this.getAttribute('data-level');
                     modalCategory.textContent = category;
                     modalQuestion.textContent = question;
-                    
+                    modalLevel.textContent = level;
                     let optionsHtml = '';
                     if (options && Object.keys(options).length > 0) {
                         Object.values(options).forEach((value, index) => {
@@ -412,13 +425,11 @@ if (empty($_SESSION['csrf_token'])) {
                         optionsHtml = '<em>No options available</em>';
                     }
                     modalOptions.innerHTML = optionsHtml;
-                    
                     detailsModal.show();
                 });
             });
-            
             function escapeHtml(str) {
-                return str.replace(/&/g, "&amp;")
+                return String(str).replace(/&/g, "&amp;")
                         .replace(/</g, "&lt;")
                         .replace(/>/g, "&gt;")
                         .replace(/"/g, "&quot;")
