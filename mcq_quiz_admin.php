@@ -348,7 +348,6 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
@@ -406,9 +405,9 @@ if (empty($_SESSION['csrf_token'])) {
                     
                     let optionsHtml = '';
                     if (options && Object.keys(options).length > 0) {
-                        for (const [label, value] of Object.entries(options)) {
-                            optionsHtml += `<div class="option-item"><strong>${label}:</strong> ${escapeHtml(value)}</div>`;
-                        }
+                        Object.values(options).forEach((value, index) => {
+                            optionsHtml += `<div class="option-item"><strong>${index + 1}:</strong> ${escapeHtml(value)}</div>`;
+                        });
                     } else {
                         optionsHtml = '<em>No options available</em>';
                     }
@@ -418,14 +417,13 @@ if (empty($_SESSION['csrf_token'])) {
                 });
             });
             
-            // Simple HTML entities encoder for JavaScript
             function escapeHtml(str) {
                 return str.replace(/&/g, "&amp;")
-                         .replace(/</g, "&lt;")
-                         .replace(/>/g, "&gt;")
-                         .replace(/"/g, "&quot;")
-                         .replace(/'/g, "&#039;");
-            }
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+            };
         });
     </script>
 </body>
