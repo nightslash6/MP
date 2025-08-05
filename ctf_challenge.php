@@ -50,7 +50,7 @@ sort($categories);
         .sidebar {
             min-width: 200px;
             padding: 24px;
-            background: #161622;
+            background: #f3f4f6;
             color: #fff;
             border-radius: 14px;
             margin: 30px 25px 0 12px;
