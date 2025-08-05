@@ -66,7 +66,7 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
     <link rel="stylesheet" href="mstyles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f5f7fa; }
+        body { background: #f5f7fa;  padding-top: 70px;}
         .table td, .table th { vertical-align: middle; }
         .section-header {
             background: linear-gradient(135deg, #4a47a3, #709fb0);
@@ -112,11 +112,13 @@ if (isset($_SESSION['user_id'])) {
     }
     $stmt->close();
 }
-include 'navbar.php';
 ?>
 
+<nav class="fixed-top">
+    <?php include 'navbar.php'; ?>
+</nav>
 
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="section-header text-center">
         <h2>Admin Challenge Management</h2>
         <p class="mb-0">Manage all Forensics and Cryptography questions here.</p>
