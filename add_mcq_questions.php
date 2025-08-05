@@ -77,20 +77,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validateInput($data, $errors);
 
         if (empty($errors)) {
-            // Store options as JSON string in DB
-            $options_json = json_encode($data['options']);
-
-            $stmt = $conn->prepare("INSERT INTO questions (question_text, category_id, level_id, options, correct_answer) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("siiss", $data['question_text'], $data['category_id'], $data['level_id'], $options_json, $data['correct_answer']);
-
-            if ($stmt->execute()) {
-                $_SESSION['message'] = ['successful' => 'Question added successfully!'];
+            // Check for duplicate question_text before inserting
+            $stmt = $conn->prepare("SELECT * FROM questions WHERE question_text = ?");
+            $stmt->bind_param("s", $data['question_text']);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
                 $stmt->close();
-                header('Location: mcq_quiz_admin.php');
-                exit;
+                $message = 'This question already exists! Please enter a unique question.';
             } else {
-                $message = 'Database error: ' . $stmt->error;
                 $stmt->close();
+
+                // Store options as JSON string in DB
+                $options_json = json_encode($data['options']);
+
+                $stmt = $conn->prepare("INSERT INTO questions (question_text, category_id, level_id, options, correct_answer) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("siiss", $data['question_text'], $data['category_id'], $data['level_id'], $options_json, $data['correct_answer']);
+
+                if ($stmt->execute()) {
+                    $_SESSION['message'] = ['successful' => 'Question added successfully!'];
+                    $stmt->close();
+                    header('Location: mcq_quiz_admin.php');
+                    exit;
+                } else {
+                    $message = 'Database error: ' . $stmt->error;
+                    $stmt->close();
+                }
             }
         }
     }
@@ -106,10 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="mstyles.css" />
     <style>
-        .remove-option {
-            width: 40px;
-            font-weight: bold;
-        }
         .input-group-text {
             min-width: 80px;
         }
@@ -144,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mb-3">
             <label for="category_id" class="form-label">Category</label>
             <select id="category_id" class="form-select <?= isset($errors['category_id']) ? 'is-invalid' : '' ?>" name="category_id" required>
-                <option value="" disabled selected>Select Category</option>
+                <option value="" disabled <?= !isset($_POST['category_id']) ? 'selected' : '' ?>>Select Category</option>
                 <?php foreach ($categories as $cat): ?>
                     <option value="<?=$cat['category_id']?>" <?= (isset($_POST['category_id']) && $_POST['category_id']==$cat['category_id']) ? 'selected' : '' ?>><?=htmlspecialchars($cat['category_name'])?></option>
                 <?php endforeach; ?>
@@ -155,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mb-3">
             <label for="level_id" class="form-label">Level</label>
             <select id="level_id" class="form-select <?= isset($errors['level_id']) ? 'is-invalid' : '' ?>" name="level_id" required>
-                <option value="" disabled selected>Select Level</option>
+                <option value="" disabled <?= !isset($_POST['level_id']) ? 'selected' : '' ?>>Select Level</option>
                 <?php foreach ($levels as $lvl): ?>
                     <option value="<?=$lvl['level_id']?>" <?= (isset($_POST['level_id']) && $_POST['level_id']==$lvl['level_id']) ? 'selected' : '' ?>><?=htmlspecialchars($lvl['level_name'])?></option>
                 <?php endforeach; ?>
@@ -164,34 +171,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="mb-3">
-            <label class="form-label">MCQ Options *</label>
-            <div id="mcqOptionsList">
+            <label for="numOptions" class="form-label">Number of Options</label>
+            <select id="numOptions" class="form-select" name="num_options" required>
                 <?php
-                // Show existing options if form was submitted with errors
-                if (!empty($_POST['mcq_options'])) {
-                    foreach ($_POST['mcq_options'] as $index => $option) {
-                        $optionNum = $index + 1;
-                        echo '
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Option '.$optionNum.'</span>
-                            <input type="text" name="mcq_options[]" class="form-control mcq-option" value="'.htmlspecialchars($option).'" maxlength="200" required>
-                            '.($optionNum > 2 ? '<button type="button" class="btn btn-outline-danger remove-option">×</button>' : '').'
-                        </div>';
+                    $selectedOptions = $_POST['num_options'] ?? 2;
+                    for ($i = 2; $i <= 5; $i++) {
+                        $selected = ($i == $selectedOptions) ? 'selected' : '';
+                        echo "<option value=\"$i\" $selected>$i</option>";
                     }
-                } else {
-                    // Default 2 options
-                    for ($i = 1; $i <= 2; $i++) {
-                        echo '
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Option '.$i.'</span>
-                            <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200" required>
-                            '.($i > 2 ? '<button type="button" class="btn btn-outline-danger remove-option">×</button>' : '').'
-                        </div>';
-                    }
-                }
                 ?>
-            </div>
-            <button type="button" id="addMcqOption" class="btn btn-sm btn-outline-primary mt-2">+ Add Option</button>
+            </select>
+        </div>
+
+        <div class="mb-3" id="mcqOptionsListContainer">
+            <label class="form-label">MCQ Options *</label>
+            <div id="mcqOptionsList"></div>
             <?php if (isset($errors['options'])): ?>
                 <div class="invalid-feedback d-block"><?= $errors['options'] ?></div>
             <?php endif; ?>
@@ -200,19 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="mb-3">
             <label for="correct_answer" class="form-label">Correct Answer</label>
             <select id="correct_answer" name="correct_answer" class="form-select <?= isset($errors['correct_answer']) ? 'is-invalid' : '' ?>" required>
-                <?php
-                if (!empty($_POST['mcq_options'])) {
-                    foreach ($_POST['mcq_options'] as $index => $option) {
-                        $optionNum = $index + 1;
-                        $selected = ($_POST['correct_answer'] ?? '') === $option ? 'selected' : '';
-                        echo '<option value="'.htmlspecialchars($option).'" '.$selected.'>Option '.$optionNum.'</option>';
-                    }
-                } else {
-                    for ($i = 1; $i <= 2; $i++) {
-                        echo '<option value="">Option '.$i.'</option>';
-                    }
-                }
-                ?>
+                <!-- Options populated by JS -->
             </select>
             <div class="invalid-feedback"><?= $errors['correct_answer'] ?? '' ?></div>
         </div>
@@ -225,72 +207,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const mcqOptionsList = document.getElementById('mcqOptionsList');
-    const addMcqOptionBtn = document.getElementById('addMcqOption');
+    const numOptionsSelect = document.getElementById('numOptions');
     const correctAnswerSelect = document.getElementById('correct_answer');
-    
-    // Add new MCQ option
-    addMcqOptionBtn.addEventListener('click', function() {
-        const optionCount = document.querySelectorAll('.mcq-option').length + 1;
-        const newOption = document.createElement('div');
-        newOption.className = 'input-group mb-2';
-        newOption.innerHTML = `
-            <span class="input-group-text">Option ${optionCount}</span>
-            <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200" required>
-            <button type="button" class="btn btn-outline-danger remove-option">×</button>
-        `;
-        mcqOptionsList.appendChild(newOption);
-        
-        // Add corresponding option to correct answer dropdown
-        const newOptionElement = document.createElement('option');
-        newOptionElement.value = '';
-        newOptionElement.textContent = `Option ${optionCount}`;
-        correctAnswerSelect.appendChild(newOptionElement);
-    });
-    
-    // Remove option (event delegation for dynamically added buttons)
-    mcqOptionsList.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-option')) {
-            const optionGroup = e.target.closest('.input-group');
-            const optionIndex = Array.from(mcqOptionsList.children).indexOf(optionGroup);
-            
-            // Remove the option
-            optionGroup.remove();
-            
-            // Renumber remaining options
-            document.querySelectorAll('.input-group-text').forEach((el, index) => {
-                el.textContent = `Option ${index + 1}`;
-            });
-            
-            // Update correct answer dropdown
-            updateCorrectAnswerOptions();
-        }
-    });
-    
-    // Update correct answer options when MCQ options change
-    function updateCorrectAnswerOptions() {
-        const options = document.querySelectorAll('.mcq-option');
-        correctAnswerSelect.innerHTML = '';
-        
-        options.forEach((option, index) => {
-            const optionElement = document.createElement('option');
-            optionElement.value = option.value;
-            optionElement.textContent = `Option ${index + 1}`;
-            correctAnswerSelect.appendChild(optionElement);
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        return (text + '').replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Store old entered options to preserve inputs on change
+    let oldOptions = [];
+    function storeOldOptions() {
+        oldOptions = [];
+        document.querySelectorAll('.mcq-option').forEach(opt => {
+            oldOptions.push(opt.value);
         });
     }
-    
-    // Update correct answer options when input values change
+
+    // Update correct answer options dropdown
+    function updateCorrectAnswerOptions() {
+        const options = document.querySelectorAll('.mcq-option');
+        const selectedValue = correctAnswerSelect.value;
+        correctAnswerSelect.innerHTML = '';
+
+        options.forEach((option, index) => {
+            const opt = document.createElement('option');
+            opt.value = option.value;
+            opt.textContent = `Option ${index + 1}`;
+            if (option.value === selectedValue) {
+                opt.selected = true;
+            }
+            correctAnswerSelect.appendChild(opt);
+        });
+    }
+
+    // Function to generate option inputs
+    function generateOptionInputs(num) {
+        mcqOptionsList.innerHTML = '';
+        for (let i = 1; i <= num; i++) {
+            const optionValue = (oldOptions[i - 1] !== undefined) ? oldOptions[i - 1] : '';
+
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+
+            div.innerHTML = `
+                <span class="input-group-text">Option ${i}</span>
+                <input type="text" name="mcq_options[]" class="form-control mcq-option" maxlength="200" required value="${escapeHtml(optionValue)}" />
+            `;
+            mcqOptionsList.appendChild(div);
+        }
+        updateCorrectAnswerOptions();
+    }
+
+    // On number of options change
+    numOptionsSelect.addEventListener('change', function() {
+        storeOldOptions();
+        generateOptionInputs(parseInt(this.value));
+    });
+
+    // On options input change update correct answer dropdown
     mcqOptionsList.addEventListener('input', function(e) {
         if (e.target.classList.contains('mcq-option')) {
             updateCorrectAnswerOptions();
         }
     });
-    
-    // Form validation
+
+    // Initial generate with old values (from POST)
+    let initialCount = parseInt(numOptionsSelect.value) || 2;
+    oldOptions = <?= json_encode($_POST['mcq_options'] ?? []) ?>;
+    generateOptionInputs(initialCount);
+
+    // Form validation for minimum options filled and correct answer selected
     document.getElementById('mcqForm').addEventListener('submit', function(e) {
         const options = document.querySelectorAll('.mcq-option');
         let isValid = true;
-        
+
         // Check at least 2 options are filled
         let filledOptions = 0;
         options.forEach(option => {
@@ -298,18 +293,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 filledOptions++;
             }
         });
-        
+
         if (filledOptions < 2) {
             alert('At least 2 MCQ options are required.');
             isValid = false;
         }
-        
-        // Check correct answer is selected
+
+        // Check correct answer is selected and is non-empty
         if (correctAnswerSelect.value === '') {
             alert('Please select the correct answer.');
             isValid = false;
         }
-        
+
         if (!isValid) {
             e.preventDefault();
         }

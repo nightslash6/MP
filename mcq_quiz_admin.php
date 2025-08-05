@@ -34,7 +34,7 @@ if (isset($_SESSION['user_id'])) {
 
 // Fetch all questions, categories, and levels
 $questions = $conn->query("
-    SELECT q.*, c.category_name, l.level_name
+    SELECT DISTINCT q.*, c.category_name, l.level_name
     FROM questions q
     LEFT JOIN categories c ON q.category_id = c.category_id
     LEFT JOIN levels l ON q.level_id = l.level_id
@@ -58,6 +58,7 @@ if (empty($_SESSION['csrf_token'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="mstyles.css" />
     <style>
+        /* Your existing styles from the original code */
         body {
             background: #f5f7fa;
             padding-top: 70px;
