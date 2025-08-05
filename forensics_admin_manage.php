@@ -120,7 +120,7 @@ if (isset($_SESSION['user_id'])) {
 
 <div class="container mt-4">
     <div class="section-header text-center">
-        <h2>Admin Challenge Management</h2>
+        <h2>Forensics and Cryptography Learning Admin Panel</h2>
         <p class="mb-0">Manage all Forensics and Cryptography questions here.</p>
     </div>
 
