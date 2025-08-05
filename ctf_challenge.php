@@ -1,6 +1,22 @@
 <?php
+session_start();
 include 'config.php';
 $conn = db_connect();
+
+$user_data = null;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT user_id, name, email FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows === 1) {
+        $user_data = $result->fetch_assoc();
+    }
+    $stmt->close();
+}else{
+    header('Location: login.php');
+    exit;
+}
 
 $difficulty = $_GET['difficulty'] ?? 'All';
 $category = $_GET['category'] ?? 'All';
@@ -14,6 +30,7 @@ if ($category != 'All') {
 }
 $result = $conn->query($sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
