@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             $updateStmt->close();
 
             // Build the reset link with token
-            $resetLink = "http://localhost//empty/MP/reset_password.php?token=$token";
+            $resetLink = "http://localhost//MP/reset_password.php?token=$token";
             
             // Send email
             $mail = new PHPMailer(true);
