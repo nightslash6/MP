@@ -222,10 +222,10 @@ if (!$UserRecord) {
             <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($UserRecord['name']); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($UserRecord['email']); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
+            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($UserRecord['email']); ?>" disabled>
 
             <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" name="phone" maxlength="8" value="<?php echo htmlspecialchars($UserRecord['phone_number'] ?? ''); ?>" <?php echo $isEditing ? '' : 'readonly'; ?>>
+            <input type="text" id="phone" name="phone" maxlength="8" value="<?php echo htmlspecialchars($UserRecord['phone_number'] ?? ''); ?>" <?php echo $isEditing ? '' : 'readonly'; ?> >
         </div>
 
         <div class="button-container">
