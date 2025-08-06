@@ -35,20 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
         $conn = db_connect();
         $name = trim($_POST['name']);
-        $email = trim($_POST['email']);
         $phone = trim($_POST['phone']);
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $update_errors[] = 'Invalid email format.';
-        }
 
         if (!preg_match('/^\d{8}$/', $phone)) {
             $update_errors[] = 'Phone number must be exactly 8 digits and contain only numbers.';
         }
 
         if (empty($update_errors)) {
-            $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone_number=? WHERE user_id=?");
-            $stmt->bind_param("sssi", $name, $email, $phone, $user_id);
+            $stmt = $conn->prepare("UPDATE users SET name=?, phone_number=? WHERE user_id=?");
+            $stmt->bind_param("ssi", $name, $phone, $user_id);
             if ($stmt->execute()) {
                 $_SESSION['success_message'] = 'Profile updated successfully.';
                 header("Location: user_profile.php");
