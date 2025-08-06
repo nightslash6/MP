@@ -31,7 +31,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     $conn = db_connect();
     $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
-    $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);
+    $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword);
 
      //Check for duplicate name
     $CheckDupName=$conn->prepare("SELECT user_id FROM users WHERE name= ?");
