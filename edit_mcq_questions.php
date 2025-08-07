@@ -2,6 +2,15 @@
 session_start();
 require 'config.php';
 
+// Session timeout handling
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
+
 // Only admins allowed
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');

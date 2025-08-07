@@ -29,6 +29,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
+    if (!preg_match('/^[a-zA-Z0-9]+$/', $name)) {
+    $errors['name'] = 'Username can only contain letters and numbers, no symbols or spaces.';
+    }
+
     $conn = db_connect();
     $stmt = $conn->prepare("INSERT INTO users (name, email, phone_number, password_hash) VALUES (?, ?, ?, ?)"); 
     $stmt->bind_param("ssss", $name, $email, $phone, $hashedpassword,);

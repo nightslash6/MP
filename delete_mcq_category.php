@@ -21,13 +21,29 @@ $conn = db_connect();
 $conn->begin_transaction();
 
 try {
-    // Delete all questions under this category
+    // 1. Delete all user progress for levels in this category
+    $stmt_progress = $conn->prepare(
+        "DELETE FROM user_progress 
+         WHERE level_id IN 
+         (SELECT level_id FROM levels WHERE category_id = ?)"
+    );
+    $stmt_progress->bind_param("i", $category_id);
+    $stmt_progress->execute();
+    $stmt_progress->close();
+
+    // 2. Delete all questions under this category
     $stmt1 = $conn->prepare("DELETE FROM questions WHERE category_id = ?");
     $stmt1->bind_param("i", $category_id);
     $stmt1->execute();
     $stmt1->close();
 
-    // Delete the category itself
+    // 3. Delete all levels under this category
+    $stmt_levels = $conn->prepare("DELETE FROM levels WHERE category_id = ?");
+    $stmt_levels->bind_param("i", $category_id);
+    $stmt_levels->execute();
+    $stmt_levels->close();
+
+    // 4. Delete the category itself
     $stmt2 = $conn->prepare("DELETE FROM categories WHERE category_id = ?");
     $stmt2->bind_param("i", $category_id);
     $stmt2->execute();
@@ -36,7 +52,7 @@ try {
     // Commit transaction
     $conn->commit();
 
-    $_SESSION['message'] = ['successful' => 'Category and all related questions deleted successfully!'];
+    $_SESSION['message'] = ['successful' => 'Category, all related levels, questions, and user progress deleted successfully!'];
     header('Location: mcq_quiz_admin.php?msg=deleted');
     exit;
 } catch (Exception $e) {

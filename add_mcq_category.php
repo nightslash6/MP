@@ -2,6 +2,15 @@
 session_start();
 require 'config.php';
 
+// Session timeout handling
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
+
 // Only admins allowed
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');
@@ -45,8 +54,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("ss", $category_name, $category_description);
 
             if ($stmt->execute()) {
-                $_SESSION['message'] = ['successful' => 'Category added successfully!'];
+                $category_id = $conn->insert_id; // The new category's ID
                 $stmt->close();
+
+                // ==== Insert default levels for the new category ====
+                $default_levels = [
+                    [
+                        'level_id' => 1,
+                        'level_name' => 'Beginner',
+                        'level_description' => 'Introduction to basic concepts.',
+                        'required_score' => 40,
+                        'questions_count' => 5,
+                        'unlock_previous_level' => null,
+                        'badge_icon' => 'beginner.png'
+                    ],
+                    [
+                        'level_id' => 2,
+                        'level_name' => 'Intermediate',
+                        'level_description' => 'Intermediate level questions.',
+                        'required_score' => 50,
+                        'questions_count' => 7,
+                        'unlock_previous_level' => 1,
+                        'badge_icon' => 'intermediate.png'
+                    ],
+                    [
+                        'level_id' => 3,
+                        'level_name' => 'Advanced',
+                        'level_description' => 'Challenging questions for advanced users.',
+                        'required_score' => 60,
+                        'questions_count' => 10,
+                        'unlock_previous_level' => 2,
+                        'badge_icon' => 'advanced.png'
+                    ]
+                ];
+
+                $insertLevel = $conn->prepare("INSERT INTO levels 
+                    (category_id, level_id, level_name, level_description, required_score, questions_count, unlock_previous_level, badge_icon)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+                foreach ($default_levels as $level) {
+                    $insertLevel->bind_param(
+                        "iissiiis",
+                        $category_id,
+                        $level['level_id'],
+                        $level['level_name'],
+                        $level['level_description'],
+                        $level['required_score'],
+                        $level['questions_count'],
+                        $level['unlock_previous_level'],
+                        $level['badge_icon']
+                    );
+                    $insertLevel->execute();
+                }
+                $insertLevel->close();
+                // ==== End of default levels insertion ====
+
+                $_SESSION['message'] = ['successful' => 'Category added successfully!'];
                 header('Location: mcq_quiz_admin.php');
                 exit;
             } else {
@@ -57,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="mcq_quiz_admin.php" class="btn btn-secondary ms-2">Cancel</a>
     </form>
 </div>
-
 
 </body>
 </html>

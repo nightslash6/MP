@@ -2,6 +2,14 @@
 session_start();
 require 'config.php';
 
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
+
 $message = [
     'successful'   => $_SESSION['message']['successful']   ?? '',
     'unsuccessful' => $_SESSION['message']['unsuccessful'] ?? ''

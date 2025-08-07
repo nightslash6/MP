@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             
 
                 // Recipients
-                $mail->setFrom('mporganization66@gmail.com', 'Password Reset');
+                $mail->setFrom('mporganization66@gmail.com', 'Support Team');
                 $mail->addAddress($email, $name);
 
                 // Content

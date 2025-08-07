@@ -2,6 +2,15 @@
 session_start();
 require 'config.php';
 
+// Session timeout handling
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+$_SESSION['last_activity'] = time();
+
 $conn = db_connect();
 
 // Fetch user data
@@ -59,7 +68,7 @@ $totalUsers = $conn->query("SELECT COUNT(*) AS count FROM users")->fetch_assoc()
 
 <div class="container mt-5 mb-5">
     <div class="dashboard-header mb-4">
-        <h1 class="mb-1">Welcome, Admin</h1>
+        <h1 class="mb-1">Welcome, <?= htmlspecialchars($user_data['name'] ?? 'Admin') ?></h1>
         <p class="mb-0">Manage users, questions, and categories from one place.</p>
     </div>
 
