@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+require 'config.php';
 $conn = db_connect();
 
 $cid = (int) ($_POST['cid'] ?? 0);

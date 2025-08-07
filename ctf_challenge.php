@@ -46,11 +46,14 @@ sort($categories);
     <link rel="stylesheet" href="ctf.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="mstyles.css" />
+    <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="eL8-LhqxDLzhQl7IBXcFh";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
     <style>
         .sidebar {
             min-width: 200px;
             padding: 24px;
-            background: #161622;
+            background: #f3f4f6;
             color: #fff;
             border-radius: 14px;
             margin: 30px 25px 0 12px;
@@ -69,7 +72,7 @@ sort($categories);
             flex:1;
             display: flex;
             flex-wrap: wrap;
-            gap: 24px;
+            gap: 50px;
             align-items: flex-start;
             padding: 30px 16px 16px 0;
             min-width: 0;
@@ -78,7 +81,7 @@ sort($categories);
             background: #fff;
             border-radius: 12px;
             padding: 22px 23px;
-            width: 290px;
+            width: 260px;
             margin-bottom: 12px;
             box-shadow: 0 2px 11px #0001;
             border: 2px solid #e1ebfa;
@@ -186,4 +189,5 @@ document.getElementById('categoryFilter').addEventListener('change', filterChall
 filterChallenges();
 </script>
 </body>
+</html>
 </html>
