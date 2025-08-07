@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 04, 2025 at 05:40 PM
+-- Generation Time: Aug 07, 2025 at 07:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,8 +40,7 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`category_id`, `category_name`, `category_description`, `created_at`) VALUES
 (1, 'CyberSecurity', 'Questions related to Cyber Security topics', '2025-06-29 05:49:06'),
-(2, 'Forensics', 'Questions related to Forensics topics', '2025-07-03 06:59:22'),
-(4, 'networking', '', '2025-08-04 15:32:45');
+(2, 'Forensics', 'Questions related to Forensics topics', '2025-07-03 06:59:22');
 
 -- --------------------------------------------------------
 
@@ -129,7 +128,16 @@ CREATE TABLE `my_crypto_questions` (
 --
 
 INSERT INTO `my_crypto_questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `difficulty`) VALUES
-(2, 'testing', '', 'LongAnswer', NULL, 'testing', 'Intermediate');
+(101, 'Decrypt this Caesar cipher (shift 3): Fdhvdu Flskhu lv vlpsoh.', NULL, 'ShortAnswer', NULL, 'CS{Caesar_Cipher_is_simple}', 'Beginner'),
+(102, 'XOR the following hex strings: A1B2C3 XOR 1F2F3F = ? (Answer in uppercase hex without 0x)', NULL, 'ShortAnswer', NULL, 'CS{BEDDFC}', 'Intermediate'),
+(103, 'What cipher replaces each letter with another letter a fixed number of positions away in the alphabet?', NULL, 'ShortAnswer', NULL, 'CS{Caesar_Cipher}', 'Beginner'),
+(104, 'Which hashing algorithm outputs a 128-bit hash and starts with the characters \"MD\"?', NULL, 'ShortAnswer', NULL, 'CS{MD5}', 'Intermediate'),
+(105, 'Given: p = 17, q = 11, find the modulus n = p * q.', NULL, 'ShortAnswer', NULL, 'CS{187}', 'Advanced'),
+(106, 'What is the output of SHA256(\"hello\") in hex (first 6 chars only)?', 'Basic hashing test.', 'ShortAnswer', NULL, 'CS{2cf24d}', 'Intermediate'),
+(107, 'Which classical cipher uses keyword-based shifting in a repeated manner?', NULL, 'ShortAnswer', NULL, 'CS{Vigenere}', 'Intermediate'),
+(108, 'RSA uses which two keys for encryption and decryption?', NULL, 'MCQ', '{\"Option1\":\"Private and Public\",\"Option2\":\"Symmetric and Asymmetric\",\"Option3\":\"Hash and Salt\",\"Option4\":\"Prime and Composite\"}', 'CS{Private and Public}', 'Beginner'),
+(109, 'Base64 decode this string: SGVsbG8gV29ybGQh', NULL, 'ShortAnswer', NULL, 'CS{Hello World!}', 'Beginner'),
+(110, 'What does the \"E\" in AES stand for?', NULL, 'MCQ', '{\"Option1\":\"Encryption\",\"Option2\":\"Electronic\",\"Option3\":\"Essential\",\"Option4\":\"Efficient\"}', 'CS{Encryption}', 'Beginner');
 
 -- --------------------------------------------------------
 
@@ -152,7 +160,16 @@ CREATE TABLE `my_forensics_questions` (
 --
 
 INSERT INTO `my_forensics_questions` (`question_id`, `question_text`, `description`, `question_type`, `options`, `correct_answer`, `difficulty`) VALUES
-(3, 'test MCQ', '', 'MCQ', '{\"Option1\":\"opt1\",\"Option2\":\"opt2\",\"Option3\":\"opt3\",\"Option4\":\"opt4\",\"Option5\":\"opt5\"}', 'opt1', 'Beginner');
+(201, 'Which file signature corresponds to a PNG file?', NULL, 'ShortAnswer', NULL, 'CS{89504E47}', 'Beginner'),
+(202, 'Which of the following timestamp types is affected when a file is opened?', NULL, 'MCQ', '{\"Option1\":\"Created\",\"Option2\":\"Modified\",\"Option3\":\"Accessed\",\"Option4\":\"Changed\"}', 'CS{Accessed}', 'Intermediate'),
+(203, 'In Windows, which registry key stores info about USB devices?', NULL, 'ShortAnswer', NULL, 'CS{SYSTEM\\\\CurrentControlSet\\\\Enum\\\\USBSTOR}', 'Intermediate'),
+(204, 'What memory analysis tool is commonly used with memory dumps and uses plugins like pslist, dlllist, and malfind?', NULL, 'ShortAnswer', NULL, 'CS{Volatility}', 'Beginner'),
+(205, 'What header field in an email helps identify the original sender’s IP address?', NULL, 'ShortAnswer', NULL, 'CS{Received}', 'Advanced'),
+(206, 'Which tool allows you to carve deleted files from disk images?', NULL, 'MCQ', '{\"Option1\":\"Autopsy\",\"Option2\":\"FTK Imager\",\"Option3\":\"Wireshark\",\"Option4\":\"IDA Pro\"}', 'CS{Autopsy}', 'Intermediate'),
+(207, 'What type of file typically contains email evidence in forensic analysis?', NULL, 'MCQ', '{\"Option1\":\"PST\",\"Option2\":\"PCAP\",\"Option3\":\"DLL\",\"Option4\":\"MP4\"}', 'CS{PST}', 'Intermediate'),
+(208, 'Which artifact would most likely show recent USB connections?', NULL, 'ShortAnswer', NULL, 'CS{Setupapi.dev.log}', 'Advanced'),
+(209, 'You find a suspicious process in memory named svch0st.exe. What should be your first action?', NULL, 'MCQ', '{\"Option1\":\"Ignore it\",\"Option2\":\"Kill process\",\"Option3\":\"Verify process path\",\"Option4\":\"Restart system\"}', 'CS{Verify process path}', 'Advanced'),
+(210, 'Which Windows file keeps track of recently opened files and apps?', NULL, 'ShortAnswer', NULL, 'CS{NTUSER.DAT}', 'Intermediate');
 
 -- --------------------------------------------------------
 
@@ -343,7 +360,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `name`, `email`, `phone_number`, `user_role`, `password_hash`, `reset_token`, `reset_token_expiration`) VALUES
 (1, 'admin101', 'admin@gmail.com', '98769876', 'admin', '$2y$10$PQTTnPSVX5V.JthPPzDqm.TIH8O/pVSrXgfQSDAnSIW.6zSh5UZoe', NULL, NULL),
-(2, 'student', 'student@gmail.com', '90909090', 'student', '$2y$10$/LW2s5lFwBt47efdbQL.Wuo9ctTErw0DQLnSoZQ5UtxlnQ/HyxmbS', NULL, NULL);
+(2, 'student', 'student@gmail.com', '90909090', 'student', '$2y$10$/LW2s5lFwBt47efdbQL.Wuo9ctTErw0DQLnSoZQ5UtxlnQ/HyxmbS', NULL, NULL),
+(8, 'xuan', 'chiashuxuan76@gmail.com', '98989898', 'student', '$2y$10$jdl6EBOsR782eXgrIzdFOe8ywvAWvzptAe6.pilh1TKfbJ6go26GW', NULL, NULL);
 
 --
 -- Triggers `users`
@@ -423,7 +441,10 @@ INSERT INTO `user_points` (`user_id`, `points`) VALUES
 (2, 25),
 (3, 60),
 (4, 275),
-(5, 30);
+(5, 30),
+(6, 0),
+(7, 0),
+(8, 0);
 
 -- --------------------------------------------------------
 
@@ -618,13 +639,13 @@ ALTER TABLE `challenges`
 -- AUTO_INCREMENT for table `my_crypto_questions`
 --
 ALTER TABLE `my_crypto_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
 
 --
 -- AUTO_INCREMENT for table `my_forensics_questions`
 --
 ALTER TABLE `my_forensics_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=211;
 
 --
 -- AUTO_INCREMENT for table `powerups`
@@ -648,13 +669,13 @@ ALTER TABLE `python_subtopics`
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=131;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=135;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `user_answers`
