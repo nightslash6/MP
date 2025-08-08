@@ -714,9 +714,6 @@ $roadmapLevels = $roadmapResult->fetch_all(MYSQLI_ASSOC);
                     case 4: // Time Freeze
                         this.freezeTimer(10);
                         break;
-                    case 5: // Reveal Hint
-                        this.showHint();
-                        break;
                     default:
                         alert('Powerup effect not implemented yet.');
                 }
@@ -767,14 +764,6 @@ $roadmapLevels = $roadmapResult->fetch_all(MYSQLI_ASSOC);
                 }
             }
 
-            showHint() {
-                const currentQuestion = currentQuizManager?.questions[currentQuizManager.currentQuestionIndex];
-                if (currentQuestion && currentQuestion.hint) {
-                    alert('Hint: ' + currentQuestion.hint);
-                } else {
-                    alert('No hint available for this question.');
-                }
-            }
         }
 
         // QUIZ MANAGER - Your existing quiz logic with powerup integration
