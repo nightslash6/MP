@@ -186,6 +186,14 @@ if (empty($_SESSION['csrf_token'])) {
             opacity: 0.5;
             pointer-events: none;
         }
+        
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-container input {
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
@@ -245,11 +253,16 @@ if (empty($_SESSION['csrf_token'])) {
         <div class="tab-content">
             <!-- Topics Tab -->
             <div class="tab-pane fade show active" id="topicsTab">
-                <div class="d-flex justify-content-end mt-3">
-                    <a href="add_topic.php" class="btn btn-primary">➕ Add Topic</a>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="search-container">
+                        <input type="text" id="topicSearch" class="form-control" placeholder="Search topics...">
+                    </div>
+                    <div>
+                        <a href="add_topic.php" class="btn btn-primary">➕ Add Topic</a>
+                    </div>
                 </div>
                 <div class="card mt-3 p-3">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="topicsTable">
                         <thead class="table-light">
                             <tr>
                                 <th>Topic Name</th>
@@ -262,7 +275,7 @@ if (empty($_SESSION['csrf_token'])) {
                             <?php endif; ?>
                             <?php foreach ($topics as $topic): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($topic['topic']); ?></td>
+                                    <td class="topic-name"><?php echo htmlspecialchars($topic['topic']); ?></td>
                                     <td>
                                         <a href="edit_topic.php?id=<?php echo $topic['python_id']; ?>" class="btn btn-sm btn-warning">Edit</a>
                                         <a href="delete_topic.php?id=<?php echo $topic['python_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this topic?')">Delete</a>
@@ -276,11 +289,16 @@ if (empty($_SESSION['csrf_token'])) {
 
             <!-- Subtopics Tab -->
             <div class="tab-pane fade" id="subtopicsTab">
-                <div class="d-flex justify-content-end mt-3">
-                    <a href="add_subtopic.php" class="btn btn-primary">➕ Add Subtopic</a>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="search-container">
+                        <input type="text" id="subtopicSearch" class="form-control" placeholder="Search subtopics...">
+                    </div>
+                    <div>
+                        <a href="add_subtopic.php" class="btn btn-primary">➕ Add Subtopic</a>
+                    </div>
                 </div>
                 <div class="card mt-3 p-3">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="subtopicsTable">
                         <thead class="table-light">
                             <tr>
                                 <th>Topic Name</th>
@@ -294,8 +312,8 @@ if (empty($_SESSION['csrf_token'])) {
                             <?php endif; ?>
                             <?php foreach ($subtopics as $subtopic): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($subtopic['topic']); ?></td>
-                                    <td><?php echo htmlspecialchars($subtopic['subtopic_title']); ?></td>
+                                    <td class="topic-name"><?php echo htmlspecialchars($subtopic['topic']); ?></td>
+                                    <td class="subtopic-name"><?php echo htmlspecialchars($subtopic['subtopic_title']); ?></td>
                                     <td>
                                         <a href="edit_subtopic.php?id=<?php echo $subtopic['subtopic_id']; ?>" class="btn btn-sm btn-warning">Edit</a>
                                         <a href="delete_subtopic.php?id=<?php echo $subtopic['subtopic_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this subtopic?')">Delete</a>
@@ -309,6 +327,7 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Remove message elements after animation completes
@@ -328,6 +347,43 @@ if (empty($_SESSION['csrf_token'])) {
                     });
                 }
             });
+
+            // Topic search functionality
+            const topicSearch = document.getElementById('topicSearch');
+            if (topicSearch) {
+                topicSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#topicsTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        const topicName = row.querySelector('.topic-name').textContent.toLowerCase();
+                        if (topicName.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Subtopic search functionality
+            const subtopicSearch = document.getElementById('subtopicSearch');
+            if (subtopicSearch) {
+                subtopicSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#subtopicsTable tbody tr');
+                    
+                    rows.forEach(row => {
+                        const topicName = row.querySelector('.topic-name').textContent.toLowerCase();
+                        const subtopicName = row.querySelector('.subtopic-name').textContent.toLowerCase();
+                        if (topicName.includes(searchTerm) || subtopicName.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
         });
     </script>
 
