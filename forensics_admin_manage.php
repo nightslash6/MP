@@ -289,12 +289,33 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
 
         <div class="tab-content" id="adminTabContent">
             <div class="tab-pane fade show active" id="forensics" role="tabpanel" aria-labelledby="forensics-tab">
-                <div class="d-flex justify-content-end my-3">
-                    <a href="forensics_admin_edit.php?table=forensics" class="btn btn-primary">➕ Add Forensics Challenge</a>
+                <div class="row align-items-center my-3">
+                    <div class="col-md-4">
+                        <input type="text" id="searchInputForensics" class="form-control" placeholder="Search questions..." />
+                    </div>
+                    <div class="col-md-3">
+                        <select id="difficultyFilterForensics" class="form-select">
+                            <option value="">All Difficulties</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="typeFilterForensics" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="ShortAnswer">ShortAnswer</option>
+                            <option value="LongAnswer">LongAnswer</option>
+                            <option value="MCQ">MCQ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <a href="forensics_admin_edit.php?table=forensics" class="btn btn-primary">➕ Add Challenge</a>
+                    </div>
                 </div>
                 <div class="card mt-3">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover mb-0" id="forensicsTable">
                             <thead>
                                 <tr>
                                     <th>Question</th>
@@ -348,12 +369,33 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
             </div>
 
             <div class="tab-pane fade" id="crypto" role="tabpanel" aria-labelledby="crypto-tab">
-                <div class="d-flex justify-content-end my-3">
-                    <a href="forensics_admin_edit.php?table=crypto" class="btn btn-primary">➕ Add Crypto Challenge</a>
+                <div class="row align-items-center my-3">
+                    <div class="col-md-4">
+                        <input type="text" id="searchInputCrypto" class="form-control" placeholder="Search questions..." />
+                    </div>
+                    <div class="col-md-3">
+                        <select id="difficultyFilterCrypto" class="form-select">
+                            <option value="">All Difficulties</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="typeFilterCrypto" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="ShortAnswer">ShortAnswer</option>
+                            <option value="LongAnswer">LongAnswer</option>
+                            <option value="MCQ">MCQ</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <a href="forensics_admin_edit.php?table=crypto" class="btn btn-primary">➕ Add Challenge</a>
+                    </div>
                 </div>
                 <div class="card mt-3">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover mb-0" id="cryptoTable">
                             <thead>
                                 <tr>
                                     <th>Question</th>
@@ -510,6 +552,61 @@ $crypto = $conn->query("SELECT * FROM my_crypto_questions ORDER BY question_id D
                         .replace(/'/g, "&#039;");
             }
         });
+
+        // Forensics table filtering
+        document.getElementById('searchInputForensics').addEventListener('input', function() {
+            filterTable('forensicsTable', this.value.toLowerCase(), 
+                       document.getElementById('difficultyFilterForensics').value.toLowerCase(),
+                       document.getElementById('typeFilterForensics').value.toLowerCase());
+        });
+        
+        document.getElementById('difficultyFilterForensics').addEventListener('change', function() {
+            filterTable('forensicsTable', document.getElementById('searchInputForensics').value.toLowerCase(),
+                       this.value.toLowerCase(),
+                       document.getElementById('typeFilterForensics').value.toLowerCase());
+        });
+        
+        document.getElementById('typeFilterForensics').addEventListener('change', function() {
+            filterTable('forensicsTable', document.getElementById('searchInputForensics').value.toLowerCase(),
+                       document.getElementById('difficultyFilterForensics').value.toLowerCase(),
+                       this.value.toLowerCase());
+        });
+
+        // Crypto table filtering
+        document.getElementById('searchInputCrypto').addEventListener('input', function() {
+            filterTable('cryptoTable', this.value.toLowerCase(), 
+                       document.getElementById('difficultyFilterCrypto').value.toLowerCase(),
+                       document.getElementById('typeFilterCrypto').value.toLowerCase());
+        });
+        
+        document.getElementById('difficultyFilterCrypto').addEventListener('change', function() {
+            filterTable('cryptoTable', document.getElementById('searchInputCrypto').value.toLowerCase(),
+                       this.value.toLowerCase(),
+                       document.getElementById('typeFilterCrypto').value.toLowerCase());
+        });
+        
+        document.getElementById('typeFilterCrypto').addEventListener('change', function() {
+            filterTable('cryptoTable', document.getElementById('searchInputCrypto').value.toLowerCase(),
+                       document.getElementById('difficultyFilterCrypto').value.toLowerCase(),
+                       this.value.toLowerCase());
+        });
+
+        function filterTable(tableId, searchTerm, difficulty, type) {
+            const table = document.getElementById(tableId);
+            const tbody = table.tBodies[0];
+            
+            Array.from(tbody.rows).forEach(row => {
+                const questionText = row.cells[0].textContent.toLowerCase();
+                const difficultyText = row.cells[1].textContent.toLowerCase();
+                const typeText = row.cells[2].textContent.toLowerCase();
+                
+                const matchesSearch = questionText.includes(searchTerm);
+                const matchesDifficulty = difficulty === '' || difficultyText === difficulty;
+                const matchesType = type === '' || typeText === type;
+                
+                row.style.display = matchesSearch && matchesDifficulty && matchesType ? '' : 'none';
+            });
+        }
     </script>
 
     <!--Session Timeout-->
