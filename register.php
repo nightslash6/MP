@@ -28,12 +28,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         $email = htmlspecialchars(trim($_POST['email']));
         $phone = htmlspecialchars(trim($_POST['phone']));
         $password = htmlspecialchars(trim($_POST['password']));
-) {
-    $errors['general'] = 'Invalid CSRF token. Please try again.';
-} else {
-    // Proceed with registration logic
-    $name = htmlspecialchars(trim($_POST['name']));
-    $email = htmlspecialchars(trim($_POST['email']));
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $name)) {
+            $errors['name'] = 'Username can only contain letters and numbers, no symbols or spaces.';
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $name)) {
+            $errors['name'] = 'Username can only contain letters and numbers, no symbols or spaces.';
+        }
     $phone = htmlspecialchars(trim($_POST['phone']));
     $password = htmlspecialchars(trim($_POST['password']));
 
