@@ -193,7 +193,7 @@ INSERT INTO `powerups` (`powerup_id`, `name`, `description`, `cost`) VALUES
 (2, 'Second Chance', 'Allows another attempt after a wrong answer.', 30),
 (3, 'Skip Question', 'Lets you skip a difficult question.', 15),
 (4, 'Time Freeze', 'Pauses the timer for 10 seconds.', 25),
-(5, 'Reveal Hint', 'Shows a helpful hint for the current question.', 10);
+
 
 -- --------------------------------------------------------
 
